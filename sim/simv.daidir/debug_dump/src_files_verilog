@@ -1,0 +1,12 @@
+/home/ICer/workspace/ske/prj/Avenger/core/milano/rtl/alu.sv
+/home/ICer/workspace/ske/prj/Avenger/core/milano/rtl/decoder.sv
+/home/ICer/workspace/ske/prj/Avenger/core/milano/rtl/ex_stage.sv
+/home/ICer/workspace/ske/prj/Avenger/core/milano/rtl/fecth_reg.sv
+/home/ICer/workspace/ske/prj/Avenger/core/milano/rtl/id_ex_reg.sv
+/home/ICer/workspace/ske/prj/Avenger/core/milano/rtl/id_stage.sv
+/home/ICer/workspace/ske/prj/Avenger/core/milano/rtl/if_id_reg.sv
+/home/ICer/workspace/ske/prj/Avenger/core/milano/rtl/if_stage.sv
+/home/ICer/workspace/ske/prj/Avenger/core/milano/rtl/milano.sv
+/home/ICer/workspace/ske/prj/Avenger/core/milano/rtl/milano_pkg.sv
+/home/ICer/workspace/ske/prj/Avenger/core/milano/rtl/reg_file.sv
+/home/ICer/workspace/ske/prj/Avenger/tb/testbench.sv

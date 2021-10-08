@@ -23,7 +23,7 @@ module id_stage(
     // from EX
     input  logic        we_i,
     input  logic [4:0]  waddr_i,
-    input  logic [31:0] wdata_i,
+    input  logic [31:0] wdata_i
 
 );
 
@@ -87,4 +87,4 @@ regs_file u_regs_file(
     .rdata_b_o(rs2_rdata_i)
 );
 
-
+endmodule

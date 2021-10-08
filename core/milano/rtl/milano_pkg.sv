@@ -20,12 +20,12 @@ typedef enum logic [6:0] {
 typedef enum logic [9:0] {//{func7,func3}
   INST_ADD             = {7'h00,3'h00},
   INST_SUB             = {7'h20,3'h00}
-} function_e
+} function_e;
 
 typedef enum logic [9:0] {
   ALU_ADD,
   ALU_SUB
 
-} alu_opt_e
+} alu_opt_e;
 
 endpackage

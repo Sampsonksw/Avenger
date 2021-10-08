@@ -1,0 +1,10 @@
+sidCmdLineBehaviorAnalysisOpt -incr -clockSkew 0 -loopUnroll 0 -bboxEmptyModule 0  -cellModel 0 -bboxIgnoreProtected 0 
+debImport "-sverilog" "+v2k" "-f" "/home/ICer/workspace/ske/prj/Avenger/tb/tb.f" \
+          "-top" "tb"
+wvCreateWindow
+wvOpenFile -win $_nWave2 {/home/ICer/workspace/ske/prj/Avenger/sim/tb.fsdb}
+wvSetPosition -win $_nWave2 {("G1" 0)}
+wvOpenFile -win $_nWave2 \
+           {/home/ICer/workspace/ske/prj/Avenger/sim/testbench.fsdb}
+srcHierTreeSort -win $_nTrace1 -hierAscending
+debExit

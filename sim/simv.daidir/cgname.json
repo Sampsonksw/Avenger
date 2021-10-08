@@ -1,0 +1,26 @@
+{
+    "std": [
+        "std",
+        "reYIK",
+        "module",
+        1
+    ],
+    "milano_pkg": [
+        "milano_pkg",
+        "pK0GY",
+        "module",
+        3
+    ],
+    "testbench": [
+        "testbench",
+        "iAVhC",
+        "module",
+        2
+    ],
+    "...MASTER...": [
+        "SIM",
+        "amcQw",
+        "module",
+        4
+    ]
+}
