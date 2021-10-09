@@ -15,8 +15,10 @@ module milano(
         input  logic [31:0] boot_addr_i,
         //output to system bus
         output logic [31:0] instr_addr_o,
-        //from eflash
-        input  logic [31:0] instr_rdata_i
+        //from instr ram
+        input  logic [31:0] instr_rdata_i,
+        //output to instr ramid_stage
+        output logic fetch_enable_o       
 );
 
 
@@ -33,27 +35,30 @@ if_stage u_if_stage(
 	    //outputs to instr ram/ID
         .instr_addr_o(instr_addr_o),
 	    //outputs to ID
-        .instr_rdata_id_o(instr_data)
-        //output logic [31:0] pc_id_o
+        .instr_rdata_id_o(instr_data),
+        .fetch_enable_o(fetch_enable_o)
 );
 
 /********** id stage unit  **********/
-    logic [4:0]     rd_addr_ex_o;
-    logic [31:0]    rs1_data_ex_o;
-    logic [31:0]    rs2_data_ex_o;
-    logic           alu_operate_ex_o;
-    logic           we_i;
-    logic [4:0]     waddr_i;
-    logic [31:0]    wdata_i;
+    logic [4:0]             rd_addr_ex_o;
+    logic                   rd_wr_en_ex_o;
+    logic [31:0]            rs1_data_ex_o;
+    logic [31:0]            rs2_data_ex_o;
+    milano_pkg::alu_opt_e   alu_operate_ex_o;
+    logic                   we_i;
+    logic [4:0]             waddr_i;
+    logic [31:0]            wdata_i;
 
 id_stage u_id_stage(
         .clk_i(clk_i),
         .rst_ni(rst_ni),
         // from IF-ID pipeline register
-        .instr_rdata_i(instr_data),   //instr data 
+        .instr_rdata_i(instr_data),   //instr data
+        .instr_addr_i(instr_addr_i),
         // output to EX
         ////rd addr
         .rd_addr_ex_o(rd_addr_ex_o),       //destination reg addr
+        .rd_wr_en_ex_o(rd_wr_en_ex_o),
         ////rs1_data,rs2_data
         .rs1_data_ex_o(rs1_data_ex_o),
         .rs2_data_ex_o(rs2_data_ex_o),

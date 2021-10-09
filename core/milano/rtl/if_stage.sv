@@ -15,6 +15,7 @@ module if_stage(
 	input  logic [31:0] instr_rdata_i,
 	//outputs to instr ram/ID
 	output logic [31:0] instr_addr_o,
+    output logic        fetch_enable_o,
 	//outputs to ID
 	output logic [31:0] instr_rdata_id_o
         //output logic [31:0] pc_id_o
@@ -24,17 +25,18 @@ module if_stage(
 /************	prefetch_reg inst	******************/
 
 prefetch_reg u_prefetch_reg(
-        .clk_i		(clk_i	     ),
-        .rst_ni		(rst_ni	     ),
+        .clk_i		    (clk_i	     ),
+        .rst_ni		    (rst_ni	     ),
         .boot_addr_i	(boot_addr_i ),		//from boot address sel
-        .instr_addr_o 	(instr_addr_o)		//to instr ram
+        .instr_addr_o 	(instr_addr_o),		//to instr ram
+        .fetch_enable_o (fetch_enable_o)
 );
 
 /************	if_id_reg inst	******************/   
 
 if_id_reg u_if_id_reg(
-	.clk_i			(clk_i),
-	.rst_ni			(rst_ni),
+	.clk_i			    (clk_i),
+	.rst_ni			    (rst_ni),
 	.instr_rdata_i		(instr_rdata_i),
 	.instr_addr_i		(instr_addr_o),
 	.instr_rdata_id_o	(instr_rdata_id_o),

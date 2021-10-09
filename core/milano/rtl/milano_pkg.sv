@@ -17,11 +17,6 @@ typedef enum logic [6:0] {
   OPCODE_SYSTEM   = 7'h73 //1110011, Environment Call/Break, I-type
 } opcode_e;
 
-typedef enum logic [9:0] {//{func7,func3}
-  INST_ADD             = {7'h00,3'h00},
-  INST_SUB             = {7'h20,3'h00}
-} function_e;
-
 typedef enum logic [9:0] {
   ALU_ADD,
   ALU_SUB
