@@ -7,7 +7,10 @@
 #			CreatTime:2021-09-27 22:22:20
 #
 ***************************************/
+
 `default_nettype none
+
+
 module decoder(
     input logic             clk_i,
     input logic             rst_ni,
@@ -27,14 +30,16 @@ module decoder(
     // output to ID-EX pipeline register
     output logic [4:0]      rd_addr_o,       //destination reg addr
     output logic            rd_wr_en_o,      //destination reg write enable
-    output logic [31:0]     rs1_data,
-    output logic [31:0]     rs2_data,
+    output logic [31:0]     operand_a_o,
+    output logic [31:0]     operand_b_o,
     output milano_pkg::alu_opt_e alu_operate_o
 );
     import milano_pkg::*;
     opcode_e    opcode;
     logic [31:0] instr;
+    logic [11:0] i_type_imm;
     assign instr =  instr_rdata_i;
+    assign i_type_imm = instr[31:20];
 //    assign rs1_addr_o      = instr[19:15];
 //    assign rs2_addr_o      = instr[24:20];
 //    assign funct           = function_e'({instr[31:25],instr[14:12]});
@@ -48,27 +53,27 @@ module decoder(
         if(!rst_ni)begin
             rs1_addr_o      = 'h0;
             rs2_addr_o      = 'h0;
-            rs1_data        = 'h0;
-            rs2_data        = 'h0;
+            operand_a_o     = 'h0;
+            operand_b_o     = 'h0;
             alu_operate_o   = ALU_NONE;
             rd_addr_o       = 'h0;
             rd_wr_en_o      = 'h0;
-            opcode          = 'h0;
+            opcode          = OPCODE_DEFAULT;
         end else begin
             opcode          = opcode_e'(instr[6:0]);
             rs1_addr_o      = instr[19:15];
             rs2_addr_o      = instr[24:20];
-            rs1_data        = 'h0;
-            rs2_data        = 'h0;
+            operand_a_o     = 'h0;
+            operand_b_o     = 'h0;
             alu_operate_o   = ALU_NONE;
             rd_addr_o       = instr[11:7];
             rd_wr_en_o      = 'h0;
             unique case (opcode)
                 OPCODE_OP : begin
-                    rs1_data = rs1_rdata_i;
-                    rs2_data = rs2_rdata_i;
+                    operand_a_o = rs1_rdata_i;
+                    operand_b_o = rs2_rdata_i;
                     //rd_addr_o = instr[11:7];
-                    rd_wr_en_o= 1'b1;
+                    rd_wr_en_o  = 1'b1;
                     unique case ({instr[31:25], instr[14:12]})
                         {7'b000_0000, 3'b000}: alu_operate_o = ALU_ADD;
                         {7'b010_0000, 3'b000}: alu_operate_o = ALU_SUB;
@@ -82,6 +87,12 @@ module decoder(
                         {7'b000_0000, 3'b011}: alu_operate_o = ALU_SLTU;
                         default: ;
                     endcase
+                end
+                OPCODE_OP_IMM : begin
+                    operand_a_o = rs1_rdata_i;
+                    operand_b_o = i_type_imm;
+                    rd_wr_en_o  = 1'b1;
+                    unique case ({instr[31:25], instr[14:12]})
                 end
                 default: ;
             endcase

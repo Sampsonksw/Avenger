@@ -1,7 +1,21 @@
+/***************************************
+#
+#			Filename:prefetch_reg.sv
+#
+#			Developer:ske
+#			Description:---
+#			CreatTime:2021-09-25 16:22:20
+#
+***************************************/
+
+`default_nettype none
+
+
+
 module prefetch_reg(
         input  logic clk_i,
         input  logic rst_ni,
-        input  logic boot_addr_i,		        //from boot address sel
+        input  logic [31:0] boot_addr_i,		        //from boot address sel
         output logic [31:0] instr_addr_o,     	//to instr ram
         output logic fetch_enable_o
 );

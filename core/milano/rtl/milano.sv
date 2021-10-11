@@ -7,7 +7,10 @@
 #			CreatTime:2021-09-29 15:09:11
 #
 ***************************************/
+
 `default_nettype none
+
+
 module milano(
         input  logic clk_i,
         input  logic rst_ni,
@@ -25,27 +28,30 @@ module milano(
 
 
 /********** if stage unit  ***********/
+
     logic [31:0]instr_data_if2id;
     logic [31:0]instr_addr_if2id;
+
 if_stage u_if_stage(
-        .clk_i(clk_i),
-        .rst_ni(rst_ni),
-        .boot_addr_i(boot_addr_i),
+        .clk_i          ( clk_i         ),
+        .rst_ni         ( rst_ni        ),
+        .boot_addr_i    ( boot_addr_i   ),
 	    //input form ram
-        .instr_rdata_i(instr_rdata_i),
+        .instr_rdata_i  (instr_rdata_i  ),
 	    //outputs to instr ram/ID
-        .instr_addr_o(instr_addr_o),
-        .fetch_enable_o(fetch_enable_o),
+        .instr_addr_o   (instr_addr_o   ),
+        .fetch_enable_o (fetch_enable_o ),
 	    //outputs to ID
         .instr_rdata_id_o(instr_data_if2id),
         .instr_addr_id_o(instr_addr_if2id)
 );
 
 /********** id stage unit  **********/
+
     logic [4:0]             rd_addr_id2ex;
     logic                   rd_wr_en_id2ex;
-    logic [31:0]            rs1_data_id2ex;
-    logic [31:0]            rs2_data_id2ex;
+    logic [31:0]            operand_a_id2ex;
+    logic [31:0]            operand_b_id2ex;
     milano_pkg::alu_opt_e   alu_operate_id2ex;
     logic                   we_ex2id;
     logic [4:0]             waddr_ex2id;
@@ -62,8 +68,8 @@ id_stage u_id_stage(
     .rd_addr_ex_o       ( rd_addr_id2ex     ),  //rd register address
     .rd_wr_en_ex_o      ( rd_wr_en_id2ex    ),  //rd register write enable
     ////rs1_data,rs2_data 
-    .rs1_data_ex_o      ( rs1_data_id2ex    ),  //rs1 register data
-    .rs2_data_ex_o      ( rs2_data_id2ex    ),  //rs2 register data
+    .operand_a_ex_o     ( operand_a_id2ex   ),  //operand_a data
+    .operand_b_ex_o     ( operand_b_id2ex   ),  //operand_b data
     .alu_operate_ex_o   ( alu_operate_id2ex ),
     // from EX
     .we_i               ( we_ex2id          ),
@@ -78,8 +84,8 @@ ex_stage u_ex_stage(
     .rst_ni     ( rst_ni            ),
     // from ID-EX pipeline register
     .operator_i ( alu_operate_id2ex ),  //alu operate type
-    .operand_a_i( rs1_data_id2ex    ),  //rs1 register data
-    .operand_b_i( rs2_data_id2ex    ),  //rs2 register data
+    .operand_a_i( operand_a_id2ex   ),  //operand_a data
+    .operand_b_i( operand_b_id2ex   ),  //operand_b data
     .rd_addr_i  ( rd_addr_id2ex     ),  //rd  register address
     .rd_wr_en_i ( rd_wr_en_id2ex    ),  //rd  register write enable
     // Write back, to MEM/regs
@@ -87,4 +93,5 @@ ex_stage u_ex_stage(
     .wr_addr_o  ( waddr_ex2id       ),
     .rd_wdata_o ( wdata_ex2id       )
 );
+
 endmodule

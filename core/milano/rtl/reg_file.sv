@@ -1,3 +1,16 @@
+/***************************************
+#
+#			Filename:regs_file.sv
+#
+#			Developer:ske
+#			Description:---
+#			CreatTime:2021-09-30 23:47:35
+#
+***************************************/
+
+`default_nettype none
+
+
 module regs_file(
     input  logic clk_i,
     input  logic rst_ni,

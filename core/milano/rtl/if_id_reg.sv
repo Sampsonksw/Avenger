@@ -1,3 +1,16 @@
+/***************************************
+#
+#			Filename:if_id_reg.sv
+#
+#			Developer:ske
+#			Description:---
+#			CreatTime:2021-09-25 17:18:35
+#
+***************************************/
+
+`default_nettype none
+
+
 module if_id_reg(
 	input  logic clk_i,
 	input  logic rst_ni,

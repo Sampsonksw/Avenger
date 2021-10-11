@@ -1,9 +1,20 @@
+/***************************************
+#
+#			Filename:milano_pkg.sv
+#
+#			Developer:ske
+#			Description:---
+#			CreatTime:2021-10-01 12:07:56
+#
+***************************************/
+
 package milano_pkg;
 /////////////
 // Opcodes //
 /////////////
 
 typedef enum logic [6:0] {
+  OPCODE_DEFAULT  = 7'h00,
   OPCODE_LOAD     = 7'h03,//0000011, load  , I-type
   OPCODE_MISC_MEM = 7'h0f,//0001111
   OPCODE_OP_IMM   = 7'h13,//0010011, imm opt, I-type

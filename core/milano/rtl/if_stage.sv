@@ -7,7 +7,10 @@
 #			CreatTime:2021-09-27 22:10:11
 #
 ***************************************/
+
 `default_nettype none
+
+
 module if_stage(
         input  logic        clk_i,
         input  logic        rst_ni,

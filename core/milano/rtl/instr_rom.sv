@@ -8,6 +8,9 @@
 #
 ***************************************/
 
+`default_nettype none
+
+
 module instr_rom(
     input   logic [31:0]        addr,
     input   logic               en,
