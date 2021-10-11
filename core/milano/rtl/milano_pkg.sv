@@ -17,9 +17,23 @@ typedef enum logic [6:0] {
   OPCODE_SYSTEM   = 7'h73 //1110011, Environment Call/Break, I-type
 } opcode_e;
 
-typedef enum logic [9:0] {
+typedef enum logic [5:0] {
+  // Arithmetics
   ALU_ADD,
-  ALU_SUB
+  ALU_SUB,
+  // Logic
+  ALU_XOR,
+  ALU_OR,
+  ALU_AND,
+  // Shift
+  ALU_SLL,
+  ALU_SRL,
+  ALU_SRA,
+  // Set lower than
+  ALU_SLT,
+  ALU_SLTU,
+
+  ALU_NONE        = 6'h3f
 
 } alu_opt_e;
 

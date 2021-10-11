@@ -9,3 +9,4 @@ $TOP/core/milano/rtl/if_stage.sv
 $TOP/core/milano/rtl/id_stage.sv
 $TOP/core/milano/rtl/ex_stage.sv
 $TOP/core/milano/rtl/milano.sv
+$TOP/core/milano/rtl/instr_rom.sv

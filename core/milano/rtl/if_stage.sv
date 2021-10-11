@@ -7,17 +7,19 @@
 #			CreatTime:2021-09-27 22:10:11
 #
 ***************************************/
+`default_nettype none
 module if_stage(
-        input  logic clk_i,
-        input  logic rst_ni,
+        input  logic        clk_i,
+        input  logic        rst_ni,
         input  logic [31:0] boot_addr_i,
-	//input form ram
-	input  logic [31:0] instr_rdata_i,
-	//outputs to instr ram/ID
-	output logic [31:0] instr_addr_o,
-    output logic        fetch_enable_o,
-	//outputs to ID
-	output logic [31:0] instr_rdata_id_o
+	    //input form ram
+	    input  logic [31:0] instr_rdata_i,
+	    //outputs to instr ram/ID
+	    output logic [31:0] instr_addr_o,
+        output logic        fetch_enable_o,
+	    //outputs to ID
+	    output logic [31:0] instr_rdata_id_o,
+        output logic [31:0] instr_addr_id_o
         //output logic [31:0] pc_id_o
 );
 

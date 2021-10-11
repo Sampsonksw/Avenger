@@ -31,7 +31,7 @@ module id_ex_reg(
             rd_wr_en_ex_o   <= 1'h0;
             rs1_data_ex_o   <= 32'h0;
             rs2_data_ex_o   <= 32'h0;
-            alu_operate_ex_o<= 'h0;    
+            alu_operate_ex_o<= ALU_NONE;    
         end else begin
             rd_addr_ex_o    <= rd_addr_i;
             rd_wr_en_ex_o   <= rd_wr_en_i;
