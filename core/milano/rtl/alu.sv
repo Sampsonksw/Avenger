@@ -34,18 +34,20 @@ module alu(
     logic [31:0] sra_op_a_op_b;
     logic [31:0] slt_op_a_op_b;
     logic [31:0] sltu_op_a_op_b;
-    logic [31:0] mask_sr_shift = 32'hffff>>operand_b_i;
+    logic [31:0] mask_sr_shift; 
+    assign mask_sr_shift= (32'hffff) >> operand_b_i;
 
     assign add_op_a_op_b = operand_a_i + operand_b_i;
     assign sub_op_a_op_b = operand_a_i - operand_b_i;
     assign xor_op_a_op_b = operand_a_i ^ operand_b_i;
     assign or_op_a_op_b  = operand_a_i | operand_b_i;
     assign and_op_a_op_b = operand_a_i & operand_b_i;
-    assign sll_op_a_op_b = operand_a_i << operand_b_i;
-    assign srl_op_a_op_b = operand_a_i >> operand_b_i;
+    assign sll_op_a_op_b = operand_a_i << operand_b_i[4:0];
+    assign srl_op_a_op_b = operand_a_i >> operand_b_i[4:0];
     assign sra_op_a_op_b = operand_a_i[31] ? ((srl_op_a_op_b)|(~mask_sr_shift&({32{operand_a_i[31]}}))) : srl_op_a_op_b;
+    assign slt_op_a_op_b = ($signed(operand_a_i) < $signed(operand_b_i)) ? 32'h1 : 32'h0;
     assign sltu_op_a_op_b= (operand_a_i < operand_b_i)? 32'h1 : 32'h0;
-    assign slt_op_a_op_b = (operand_a_i[31] ^ operand_b_i[31]) ? (operand_a_i[31] ? 32'h1 : 32'h0) : sltu_op_a_op_b;
+    //assign slt_op_a_op_b = (operand_a_i[31] ^ operand_b_i[31]) ? (operand_a_i[31] ? 32'h1 : 32'h0) : sltu_op_a_op_b;
 
     always_comb begin
         if(!rst_ni)begin

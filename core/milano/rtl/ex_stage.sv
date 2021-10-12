@@ -30,14 +30,15 @@ module ex_stage(
 
 
 alu u_alu(
-    .operator_i(operator_i),
-    .operand_a_i(operand_a_i),
-    .operand_b_i(operand_b_i),
-    .rd_addr_i(rd_addr_i),
-    .rd_wr_en_i(rd_wr_en_i),
-    .reg_we_o(reg_we_o),
-    .wr_addr_o(wr_addr_o),
-    .rd_wdata_o(rd_wdata_o)
+    .rst_ni     ( rst_ni        ),
+    .operator_i ( operator_i    ),
+    .operand_a_i( operand_a_i   ),
+    .operand_b_i( operand_b_i   ),
+    .rd_addr_i  ( rd_addr_i     ),
+    .rd_wr_en_i ( rd_wr_en_i    ),
+    .reg_we_o   ( reg_we_o      ),
+    .wr_addr_o  ( wr_addr_o     ),
+    .rd_wdata_o ( rd_wdata_o    )
 );
 
 endmodule

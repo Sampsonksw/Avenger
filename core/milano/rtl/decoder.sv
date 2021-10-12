@@ -72,9 +72,8 @@ module decoder(
                 OPCODE_OP : begin
                     operand_a_o = rs1_rdata_i;
                     operand_b_o = rs2_rdata_i;
-                    //rd_addr_o = instr[11:7];
                     rd_wr_en_o  = 1'b1;
-                    unique case ({instr[31:25], instr[14:12]})
+                    unique case ({instr[31:25], instr[14:12]})  //funct7,funct3
                         {7'b000_0000, 3'b000}: alu_operate_o = ALU_ADD;
                         {7'b010_0000, 3'b000}: alu_operate_o = ALU_SUB;
                         {7'b000_0000, 3'b100}: alu_operate_o = ALU_XOR;
@@ -90,9 +89,23 @@ module decoder(
                 end
                 OPCODE_OP_IMM : begin
                     operand_a_o = rs1_rdata_i;
-                    operand_b_o = i_type_imm;
+                    operand_b_o = {{20{i_type_imm[11]}},i_type_imm};
                     rd_wr_en_o  = 1'b1;
-                    unique case ({instr[31:25], instr[14:12]})
+                    unique case (instr[14:12])                      //funct3
+                        3'b000 : alu_operate_o = ALU_ADD;           //ADDI
+                        3'b100 : alu_operate_o = ALU_XOR;           //XORI
+                        3'b110 : alu_operate_o = ALU_OR;            //ORI
+                        3'b111 : alu_operate_o = ALU_AND;           //ANDI
+                        3'b001 : if (instr[31:25]==7'h00) alu_operate_o = ALU_SLL;        //SLLI
+                        3'b101 : if (instr[31:25]==7'h00) begin 
+                                    alu_operate_o = ALU_SRL;        //SRLI
+                                 end else if (instr[31:25]==7'h20) begin 
+                                    alu_operate_o = ALU_SRA;        //SRAI
+                                 end
+                        3'b010 : alu_operate_o = ALU_SLT;           //SLTI
+                        3'b011 : alu_operate_o = ALU_SLTU;          //SLTUI
+                        default: ;
+                    endcase
                 end
                 default: ;
             endcase

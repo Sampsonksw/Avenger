@@ -41,23 +41,23 @@ module id_stage(
 
 /************	decoder inst	******************/
 decoder u_decoder(
-    .clk_i          (clk_i          ),
-    .rst_ni         (rst_ni         ),
+    .clk_i          ( clk_i         ),
+    .rst_ni         ( rst_ni        ),
     // from IF-ID pipeline register
-    .instr_rdata_i  (instr_rdata_i  ),      //instr data
-    .instr_addr_i   (instr_addr_i   ),      //instr addr
+    .instr_rdata_i  ( instr_rdata_i ),      //instr data
+    .instr_addr_i   ( instr_addr_i  ),      //instr addr
     // from register file
-    .rs1_rdata_i    (rs1_rdata_i    ),      //source reg1
-    .rs2_rdata_i    (rs2_rdata_i    ),      //source reg2
+    .rs1_rdata_i    ( rs1_rdata_i   ),      //source reg1
+    .rs2_rdata_i    ( rs2_rdata_i   ),      //source reg2
     // output to register file
-    .rs1_addr_o     (rs1_addr_o     ),      //source reg1 addr
-    .rs2_addr_o     (rs2_addr_o     ),      //source reg2 addr
+    .rs1_addr_o     ( rs1_addr_o    ),      //source reg1 addr
+    .rs2_addr_o     ( rs2_addr_o    ),      //source reg2 addr
     // output to ID-EX pipeline register
-    .rd_addr_o      (rd_addr_o      ),      //destination reg addr
-    .rd_wr_en_o     (rd_wr_en_o     ),
-    .operand_a_o    (operand_a      ),
-    .operand_b_o    (operand_b      ),
-    .alu_operate_o  (alu_operate_o  )
+    .rd_addr_o      ( rd_addr_o     ),      //destination reg addr
+    .rd_wr_en_o     ( rd_wr_en_o    ),
+    .operand_a_o    ( operand_a     ),
+    .operand_b_o    ( operand_b     ),
+    .alu_operate_o  ( alu_operate_o )
 
 );
 
