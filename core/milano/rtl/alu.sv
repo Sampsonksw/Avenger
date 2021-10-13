@@ -20,11 +20,13 @@ module alu(
     input  logic                    rd_wr_en_i,
     output logic                    reg_we_o,
     output logic [4:0]              wr_addr_o,
-    output logic [31:0]             rd_wdata_o
+    output logic [31:0]             rd_wdata_o,
+
+    output logic [31:0]             add_op_a_op_b
 );
     import milano_pkg::*;
     //temp alu result
-    logic [31:0] add_op_a_op_b;
+    //logic [31:0] add_op_a_op_b;
     logic [31:0] sub_op_a_op_b;
     logic [31:0] xor_op_a_op_b;
     logic [31:0] or_op_a_op_b;

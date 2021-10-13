@@ -11,7 +11,6 @@
 `default_nettype none
 
 
-
 module prefetch_reg(
         input  logic clk_i,
         input  logic rst_ni,

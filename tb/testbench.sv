@@ -10,29 +10,58 @@
 module testbench;
 
 
-logic           clk_i;
-logic           rst_ni;
-logic [31:0]    boot_addr_i;
-logic [31:0]    instr_rdata_i;
-logic [31:0]    instr_addr_o;
-logic           fetch_enable_o;
-
+logic               clk_i;
+logic               rst_ni;
+logic   [31:0]      boot_addr_i;
+logic   [31:0]      instr_rdata_i;
+logic   [31:0]      instr_addr_o;
+logic               fetch_enable_o;
+// data interface
+logic               data_req_o;
+logic               data_we_o;
+logic   [3:0]       data_be_o;
+logic   [31:0]      data_addr_o;
+logic   [31:0]      data_rdata_i;
+logic               data_rvalid_o;
+logic   [31:0]      data_wdata_o;
+logic               data_gnt_i;
 milano dut(
-        .clk_i(clk_i),
-        .rst_ni(rst_ni),
+        .clk_i          ( clk_i         ),
+        .rst_ni         ( rst_ni        ),
         //input from boot sel
-        .boot_addr_i(boot_addr_i),
+        .boot_addr_i    ( boot_addr_i   ),
         //output to system bus
-        .instr_addr_o(instr_addr_o),
+        .instr_addr_o   ( instr_addr_o  ),
         //from eflash
-        .instr_rdata_i(instr_rdata_i),
-        .fetch_enable_o(fetch_enable_o)
+        .instr_rdata_i  ( instr_rdata_i ),
+        .fetch_enable_o ( fetch_enable_o),
+        // data interface
+        .data_req_o     ( data_req_o    ),
+        .data_gnt_i     ( data_gnt_i              ),
+        .data_rvalid_i  ( data_rvalid_o ),
+        .data_addr_o    ( data_addr_o   ) ,
+        .data_we_o      ( data_we_o     ) ,
+        .data_be_o      ( data_be_o     ),
+        .data_wdata_o   ( data_wdata_o  ),
+        .data_rdata_i   ( data_rdata_i  )
             );
 
 instr_rom u_instr_rom(
-    .addr(instr_addr_o),
-    .en(fetch_enable_o),
-    .instr(instr_rdata_i)
+    .addr   ( instr_addr_o  ),
+    .en     ( fetch_enable_o),
+    .instr  ( instr_rdata_i )
+);
+
+data_ram u_data_ram(
+    .clk_i          ( clk_i         ),
+    .rst_ni         ( rst_ni        ),
+    .ce_i           ( data_req_o    ),
+    .wr_en_i        ( data_we_o     ),
+    .sel_i          ( data_be_o     ),
+    .addr_i         ( data_addr_o   ),
+    .wdata_i        ( data_wdata_o  ),
+    .rdata_o        ( data_rdata_i  ),
+    .data_rvalid_o  ( data_rvalid_o )
 );
 
 initial begin
@@ -69,8 +98,8 @@ initial begin
     //               slti  000000000001_00001_010_00001_0010011
     //               sltiu 000000000001_00001_011_00001_0010011
     //
-    //
-    //
+    //               lb    000000000001_00000_000_00001_0000011
+    //0
     //
     #1000 $finish;
 end

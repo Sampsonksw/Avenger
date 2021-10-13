@@ -30,16 +30,25 @@ module decoder(
     // output to ID-EX pipeline register
     output logic [4:0]      rd_addr_o,       //destination reg addr
     output logic            rd_wr_en_o,      //destination reg write enable
+    output logic            alu_sel_o,
     output logic [31:0]     operand_a_o,
     output logic [31:0]     operand_b_o,
-    output milano_pkg::alu_opt_e alu_operate_o
+    output milano_pkg::alu_opt_e alu_operate_o,
+    output logic            lsu_we_o,
+    output logic            lsu_req_o,
+    output logic [2:0]      lsu_type_o
+
 );
     import milano_pkg::*;
     opcode_e    opcode;
     logic [31:0] instr;
     logic [11:0] i_type_imm;
+    logic [11:0] s_type_imm;
+
     assign instr =  instr_rdata_i;
     assign i_type_imm = instr[31:20];
+    assign s_type_imm = {instr[31:25],instr[11:7]};
+
 //    assign rs1_addr_o      = instr[19:15];
 //    assign rs2_addr_o      = instr[24:20];
 //    assign funct           = function_e'({instr[31:25],instr[14:12]});
@@ -55,24 +64,35 @@ module decoder(
             rs2_addr_o      = 'h0;
             operand_a_o     = 'h0;
             operand_b_o     = 'h0;
+            alu_sel_o       = 'h0;
             alu_operate_o   = ALU_NONE;
             rd_addr_o       = 'h0;
             rd_wr_en_o      = 'h0;
             opcode          = OPCODE_DEFAULT;
+            rd_wr_en_o      = 1'b0;
+            lsu_we_o        = 1'b0;
+            lsu_req_o       = 1'b0;
+            lsu_type_o      = 3'b000;
         end else begin
             opcode          = opcode_e'(instr[6:0]);
             rs1_addr_o      = instr[19:15];
             rs2_addr_o      = instr[24:20];
+            alu_sel_o       = 'h0;
             operand_a_o     = 'h0;
             operand_b_o     = 'h0;
             alu_operate_o   = ALU_NONE;
             rd_addr_o       = instr[11:7];
             rd_wr_en_o      = 'h0;
+            rd_wr_en_o      = 1'b0;
+            lsu_we_o        = 1'b0;
+            lsu_req_o       = 1'b0;
+            lsu_type_o      = 3'b000;
             unique case (opcode)
                 OPCODE_OP : begin
                     operand_a_o = rs1_rdata_i;
                     operand_b_o = rs2_rdata_i;
                     rd_wr_en_o  = 1'b1;
+                    alu_sel_o   = 1'b1;
                     unique case ({instr[31:25], instr[14:12]})  //funct7,funct3
                         {7'b000_0000, 3'b000}: alu_operate_o = ALU_ADD;
                         {7'b010_0000, 3'b000}: alu_operate_o = ALU_SUB;
@@ -91,6 +111,7 @@ module decoder(
                     operand_a_o = rs1_rdata_i;
                     operand_b_o = {{20{i_type_imm[11]}},i_type_imm};
                     rd_wr_en_o  = 1'b1;
+                    alu_sel_o   = 1'b1;
                     unique case (instr[14:12])                      //funct3
                         3'b000 : alu_operate_o = ALU_ADD;           //ADDI
                         3'b100 : alu_operate_o = ALU_XOR;           //XORI
@@ -106,6 +127,23 @@ module decoder(
                         3'b011 : alu_operate_o = ALU_SLTU;          //SLTUI
                         default: ;
                     endcase
+                end
+                OPCODE_LOAD : begin
+                    operand_a_o = rs1_rdata_i;
+                    operand_b_o = {{20{i_type_imm[11]}},i_type_imm};
+                    alu_sel_o   = 1'b0; 
+                    rd_wr_en_o  = 1'b1;
+                    lsu_we_o    = 1'b0;
+                    lsu_req_o   = 1'b1;
+                    unique case (instr[14:12]) 
+                        3'b000 : lsu_type_o = 3'b010;        //LB
+                        3'b001 : lsu_type_o = 3'b001;        //LH
+                        3'b010 : lsu_type_o = 3'b000;        //LW
+                        3'b100 : lsu_type_o = 3'b110;        //LB(U)
+                        3'b101 : lsu_type_o = 3'b101;        //LH(U)
+                        default: ;
+                    endcase
+                //OPCODE_STORE : begin
                 end
                 default: ;
             endcase

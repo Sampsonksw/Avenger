@@ -12,16 +12,25 @@
 
 
 module milano(
-        input  logic clk_i,
-        input  logic rst_ni,
-        //input from boot sel
-        input  logic [31:0] boot_addr_i,
-        //output to system bus
-        output logic [31:0] instr_addr_o,
-        //from instr ram
-        input  logic [31:0] instr_rdata_i,
-        //output to instr ramid_stage
-        output logic fetch_enable_o       
+        input   logic               clk_i           ,
+        input   logic               rst_ni          ,
+        // input from boot sel
+        input   logic   [31:0]      boot_addr_i     ,
+        // output to system bus
+        output  logic   [31:0]      instr_addr_o    ,
+        // from instr ram
+        input   logic   [31:0]      instr_rdata_i   ,
+        // output to instr ramid_stage
+        output  logic               fetch_enable_o  ,
+        // data interface
+        output  logic               data_req_o      ,
+        input   logic               data_gnt_i      ,
+        input   logic               data_rvalid_i   ,
+        output  logic   [31:0]      data_addr_o     ,
+        output  logic               data_we_o       ,
+        output  logic   [3:0]       data_be_o       ,
+        output  logic   [31:0]      data_wdata_o    ,
+        input   logic   [31:0]      data_rdata_i    
 );
 
 
@@ -29,33 +38,37 @@ module milano(
 
 /********** if stage unit  ***********/
 
-    logic [31:0]instr_data_if2id;
-    logic [31:0]instr_addr_if2id;
+    logic   [31:0]      instr_data_if2id;
+    logic   [31:0]      instr_addr_if2id;
 
 if_stage u_if_stage(
-        .clk_i          ( clk_i         ),
-        .rst_ni         ( rst_ni        ),
-        .boot_addr_i    ( boot_addr_i   ),
-	    //input form ram
-        .instr_rdata_i  (instr_rdata_i  ),
+        .clk_i              ( clk_i             ),
+        .rst_ni             ( rst_ni            ),
+        .boot_addr_i        ( boot_addr_i       ),
+	    //input form ram    
+        .instr_rdata_i      ( instr_rdata_i     ),
 	    //outputs to instr ram/ID
-        .instr_addr_o   (instr_addr_o   ),
-        .fetch_enable_o (fetch_enable_o ),
+        .instr_addr_o       ( instr_addr_o      ),
+        .fetch_enable_o     ( fetch_enable_o    ),
 	    //outputs to ID
-        .instr_rdata_id_o(instr_data_if2id),
-        .instr_addr_id_o(instr_addr_if2id)
+        .instr_rdata_id_o   ( instr_data_if2id  ),
+        .instr_addr_id_o    ( instr_addr_if2id  )
 );
 
 /********** id stage unit  **********/
 
-    logic [4:0]             rd_addr_id2ex;
+    logic   [4:0]           rd_addr_id2ex;
     logic                   rd_wr_en_id2ex;
-    logic [31:0]            operand_a_id2ex;
-    logic [31:0]            operand_b_id2ex;
+    logic                   alu_sel_id2ex;
+    logic   [31:0]          operand_a_id2ex;
+    logic   [31:0]          operand_b_id2ex;
     milano_pkg::alu_opt_e   alu_operate_id2ex;
+    logic                   lsu_we_id2ex;  
+    logic                   lsu_req_id2ex; 
+    logic   [2:0]           lsu_type_id2ex;
     logic                   we_ex2id;
-    logic [4:0]             waddr_ex2id;
-    logic [31:0]            wdata_ex2id;
+    logic   [4:0]           waddr_ex2id;
+    logic   [31:0]          wdata_ex2id;
 
 id_stage u_id_stage(
     .clk_i              ( clk_i             ),
@@ -67,10 +80,15 @@ id_stage u_id_stage(
     ////rd addr
     .rd_addr_ex_o       ( rd_addr_id2ex     ),  //rd register address
     .rd_wr_en_ex_o      ( rd_wr_en_id2ex    ),  //rd register write enable
-    ////rs1_data,rs2_data 
+    ////
+    .alu_sel_ex_o       ( alu_sel_id2ex     ),
     .operand_a_ex_o     ( operand_a_id2ex   ),  //operand_a data
     .operand_b_ex_o     ( operand_b_id2ex   ),  //operand_b data
     .alu_operate_ex_o   ( alu_operate_id2ex ),
+    .lsu_we_ex_o        ( lsu_we_id2ex      ),
+    .lsu_req_ex_o       ( lsu_req_id2ex     ),
+    .lsu_type_ex_o      ( lsu_type_id2ex    ),
+
     // from EX
     .we_i               ( we_ex2id          ),
     .waddr_i            ( waddr_ex2id       ),
@@ -80,18 +98,31 @@ id_stage u_id_stage(
 /********** ex stage unit  **********/
 
 ex_stage u_ex_stage(
-    .clk_i      ( clk_i             ),
-    .rst_ni     ( rst_ni            ),
+    .clk_i          ( clk_i             ),
+    .rst_ni         ( rst_ni            ),
     // from ID-EX pipeline register
-    .operator_i ( alu_operate_id2ex ),  //alu operate type
-    .operand_a_i( operand_a_id2ex   ),  //operand_a data
-    .operand_b_i( operand_b_id2ex   ),  //operand_b data
-    .rd_addr_i  ( rd_addr_id2ex     ),  //rd  register address
-    .rd_wr_en_i ( rd_wr_en_id2ex    ),  //rd  register write enable
+    .alu_sel_i      ( alu_sel_id2ex     ),
+    .operator_i     ( alu_operate_id2ex ),  //alu operate type
+    .operand_a_i    ( operand_a_id2ex   ),  //operand_a data
+    .operand_b_i    ( operand_b_id2ex   ),  //operand_b data
+    .rd_addr_i      ( rd_addr_id2ex     ),  //rd  register address
+    .rd_wr_en_i     ( rd_wr_en_id2ex    ),  //rd  register write enable
+    .lsu_we_i       ( lsu_we_id2ex      ),
+    .lsu_req_i      ( lsu_req_id2ex     ),
+    .lsu_type_i     ( lsu_type_id2ex    ),
     // Write back, to MEM/regs
-    .reg_we_o   ( we_ex2id          ),
-    .wr_addr_o  ( waddr_ex2id       ),
-    .rd_wdata_o ( wdata_ex2id       )
+    .reg_we_o       ( we_ex2id          ),
+    .wr_addr_o      ( waddr_ex2id       ),
+    .rd_wdata_o     ( wdata_ex2id       ),
+    // data interface
+    .data_req_o     ( data_req_o        ),
+    .data_gnt_i     ( data_gnt_i        ),
+    .data_rvalid_i  ( data_rvalid_i     ),
+    .data_addr_o    ( data_addr_o       ),
+    .data_we_o      ( data_we_o         ),
+    .data_be_o      ( data_be_o         ),
+    .data_wdata_o   ( data_wdata_o      ),
+    .data_rdata_i   ( data_rdata_i      )
 );
 
 endmodule
