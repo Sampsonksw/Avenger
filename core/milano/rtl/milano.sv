@@ -63,9 +63,9 @@ if_stage u_if_stage(
     logic   [31:0]          operand_a_id2ex;
     logic   [31:0]          operand_b_id2ex;
     milano_pkg::alu_opt_e   alu_operate_id2ex;
-    logic                   lsu_we_id2ex;  
-    logic                   lsu_req_id2ex; 
-    logic   [2:0]           lsu_type_id2ex;
+    logic                   lsu_mem_we_id2ex;  
+    logic                   lsu_mem_req_id2ex; 
+    milano_pkg::lsu_opt_e   lsu_operate_id2ex;
     logic                   we_ex2id;
     logic   [4:0]           waddr_ex2id;
     logic   [31:0]          wdata_ex2id;
@@ -85,9 +85,9 @@ id_stage u_id_stage(
     .operand_a_ex_o     ( operand_a_id2ex   ),  //operand_a data
     .operand_b_ex_o     ( operand_b_id2ex   ),  //operand_b data
     .alu_operate_ex_o   ( alu_operate_id2ex ),
-    .lsu_we_ex_o        ( lsu_we_id2ex      ),
-    .lsu_req_ex_o       ( lsu_req_id2ex     ),
-    .lsu_type_ex_o      ( lsu_type_id2ex    ),
+    .lsu_we_ex_o        ( lsu_mem_we_id2ex      ),
+    .lsu_req_ex_o       ( lsu_mem_req_id2ex     ),
+    .lsu_operate_ex_o   ( lsu_operate_id2ex ),
 
     // from EX
     .we_i               ( we_ex2id          ),
@@ -102,17 +102,17 @@ ex_stage u_ex_stage(
     .rst_ni         ( rst_ni            ),
     // from ID-EX pipeline register
     .alu_sel_i      ( alu_sel_id2ex     ),
-    .operator_i     ( alu_operate_id2ex ),  //alu operate type
-    .operand_a_i    ( operand_a_id2ex   ),  //operand_a data
-    .operand_b_i    ( operand_b_id2ex   ),  //operand_b data
+    .alu_operate_i  ( alu_operate_id2ex ),  //alu operate type
+    .alu_operand_a_i( operand_a_id2ex   ),  //operand_a data
+    .alu_operand_b_i( operand_b_id2ex   ),  //operand_b data
     .rd_addr_i      ( rd_addr_id2ex     ),  //rd  register address
-    .rd_wr_en_i     ( rd_wr_en_id2ex    ),  //rd  register write enable
-    .lsu_we_i       ( lsu_we_id2ex      ),
-    .lsu_req_i      ( lsu_req_id2ex     ),
-    .lsu_type_i     ( lsu_type_id2ex    ),
+    .rd_we_i        ( rd_wr_en_id2ex    ),  //rd  register write enable
+    .lsu_mem_we_i   ( lsu_mem_we_id2ex  ),
+    .lsu_mem_req_i  ( lsu_mem_req_id2ex ),
+    .lsu_operate_i  ( lsu_operate_id2ex ),
     // Write back, to MEM/regs
-    .reg_we_o       ( we_ex2id          ),
-    .wr_addr_o      ( waddr_ex2id       ),
+    .rd_we_o        ( we_ex2id          ),
+    .rd_waddr_o     ( waddr_ex2id       ),
     .rd_wdata_o     ( wdata_ex2id       ),
     // data interface
     .data_req_o     ( data_req_o        ),

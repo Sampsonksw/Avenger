@@ -36,7 +36,7 @@ module decoder(
     output milano_pkg::alu_opt_e alu_operate_o,
     output logic            lsu_we_o,
     output logic            lsu_req_o,
-    output logic [2:0]      lsu_type_o
+    output milano_pkg::lsu_opt_e lsu_operate_o
 
 );
     import milano_pkg::*;
@@ -72,7 +72,7 @@ module decoder(
             rd_wr_en_o      = 1'b0;
             lsu_we_o        = 1'b0;
             lsu_req_o       = 1'b0;
-            lsu_type_o      = 3'b000;
+            lsu_operate_o   = LSU_NONE;
         end else begin
             opcode          = opcode_e'(instr[6:0]);
             rs1_addr_o      = instr[19:15];
@@ -86,7 +86,7 @@ module decoder(
             rd_wr_en_o      = 1'b0;
             lsu_we_o        = 1'b0;
             lsu_req_o       = 1'b0;
-            lsu_type_o      = 3'b000;
+            lsu_operate_o   = LSU_NONE;
             unique case (opcode)
                 OPCODE_OP : begin
                     operand_a_o = rs1_rdata_i;
@@ -136,11 +136,11 @@ module decoder(
                     lsu_we_o    = 1'b0;
                     lsu_req_o   = 1'b1;
                     unique case (instr[14:12]) 
-                        3'b000 : lsu_type_o = 3'b010;        //LB
-                        3'b001 : lsu_type_o = 3'b001;        //LH
-                        3'b010 : lsu_type_o = 3'b000;        //LW
-                        3'b100 : lsu_type_o = 3'b110;        //LB(U)
-                        3'b101 : lsu_type_o = 3'b101;        //LH(U)
+                        3'b000 : lsu_operate_o = LSU_LB;        //LB
+                        3'b001 : lsu_operate_o = LSU_LH;        //LH
+                        3'b010 : lsu_operate_o = LSU_LW;        //LW
+                        3'b100 : lsu_operate_o = LSU_LBU;       //LB(U)
+                        3'b101 : lsu_operate_o = LSU_LHU;       //LH(U)
                         default: ;
                     endcase
                 //OPCODE_STORE : begin

@@ -28,7 +28,7 @@ module id_stage(
     output milano_pkg::alu_opt_e    alu_operate_ex_o,
     output  logic                   lsu_we_ex_o,
     output  logic                   lsu_req_ex_o,
-    output  logic   [2:0]           lsu_type_ex_o,
+    output  milano_pkg::lsu_opt_e   lsu_operate_ex_o,
     // from EX
     input  logic                    we_i,
     input  logic [4:0]              waddr_i,
@@ -43,7 +43,7 @@ module id_stage(
     milano_pkg::alu_opt_e   alu_operate_o;
     logic                   rd_wr_en_o, alu_sel_o;
     logic                   lsu_we, lsu_req;
-    logic [2:0]             lsu_type;
+    milano_pkg::lsu_opt_e   lsu_operate_o;
 /************	decoder inst	******************/
 decoder u_decoder(
     .clk_i          ( clk_i         ),
@@ -66,7 +66,7 @@ decoder u_decoder(
     .alu_operate_o  ( alu_operate_o ),
     .lsu_we_o       ( lsu_we        ),
     .lsu_req_o      ( lsu_req       ),
-    .lsu_type_o     ( lsu_type      )
+    .lsu_operate_o  ( lsu_operate_o )
 
 
 );
@@ -84,7 +84,7 @@ id_ex_reg u_id_ex_reg(
     .alu_operate_i      ( alu_operate_o     ),
     .lsu_we_i           ( lsu_we            ), 
     .lsu_req_i          ( lsu_req           ), 
-    .lsu_type_i         ( lsu_type          ), 
+    .lsu_operate_i      ( lsu_operate_o     ), 
 
     //to EX
     .rd_addr_ex_o       ( rd_addr_ex_o      ),
@@ -95,7 +95,7 @@ id_ex_reg u_id_ex_reg(
     .alu_operate_ex_o   ( alu_operate_ex_o  ),
     .lsu_we_ex_o        ( lsu_we_ex_o       ),
     .lsu_req_ex_o       ( lsu_req_ex_o      ),
-    .lsu_type_ex_o      ( lsu_type_ex_o     )
+    .lsu_operate_ex_o   ( lsu_operate_ex_o  )
 );
 
 /************	regs file inst	******************/

@@ -23,8 +23,7 @@ module id_ex_reg(
     input   milano_pkg::alu_opt_e   alu_operate_i   ,
     input   logic                   lsu_we_i        ,
     input   logic                   lsu_req_i       ,
-    input   logic   [2:0]           lsu_type_i      ,
-
+    input   milano_pkg::lsu_opt_e   lsu_operate_i   ,
     //to EX
     output  logic   [4:0]           rd_addr_ex_o    ,
     output  logic                   rd_wr_en_ex_o   ,
@@ -34,7 +33,7 @@ module id_ex_reg(
     output  milano_pkg::alu_opt_e   alu_operate_ex_o,
     output  logic                   lsu_we_ex_o     ,
     output  logic                   lsu_req_ex_o    ,
-    output  logic   [2:0]           lsu_type_ex_o   
+    output  milano_pkg::lsu_opt_e   lsu_operate_ex_o   
 
 
 );
@@ -49,7 +48,7 @@ module id_ex_reg(
             alu_operate_ex_o<= ALU_NONE;
             lsu_we_ex_o     <= 1'b0; 
             lsu_req_ex_o    <= 1'b0; 
-            lsu_type_ex_o   <= 3'b000;
+            lsu_operate_ex_o<= LSU_NONE;
         end else begin
             rd_addr_ex_o    <= rd_addr_i;
             rd_wr_en_ex_o   <= rd_wr_en_i;
@@ -59,7 +58,7 @@ module id_ex_reg(
             alu_operate_ex_o<= alu_operate_i;
             lsu_we_ex_o     <= lsu_we_i ;
             lsu_req_ex_o    <= lsu_req_i ;
-            lsu_type_ex_o   <= lsu_type_i;
+            lsu_operate_ex_o<= lsu_operate_i;
         end
     end
 
