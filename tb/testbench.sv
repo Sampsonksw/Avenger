@@ -37,7 +37,7 @@ milano dut(
         .fetch_enable_o ( fetch_enable_o),
         // data interface
         .data_req_o     ( data_req_o    ),
-        .data_gnt_i     ( data_gnt_i              ),
+        .data_gnt_i     ( data_gnt_i    ),
         .data_rvalid_i  ( data_rvalid_o ),
         .data_addr_o    ( data_addr_o   ) ,
         .data_we_o      ( data_we_o     ) ,
@@ -61,7 +61,8 @@ data_ram u_data_ram(
     .addr_i         ( data_addr_o   ),
     .wdata_i        ( data_wdata_o  ),
     .rdata_o        ( data_rdata_i  ),
-    .data_rvalid_o  ( data_rvalid_o )
+    .data_rvalid_o  ( data_rvalid_o ),
+    .wrtie_sucess   (               )
 );
 
 initial begin
@@ -99,8 +100,13 @@ initial begin
     //               sltiu 000000000001_00001_011_00001_0010011
     //
     //               lb    000000000001_00000_000_00001_0000011
-    //0
-    //
+    //               lh    000000000001_00000_001_00001_0000011
+    //               lw    000000000000_00000_010_00001_0000011
+    //                     imm[11:5] rs2  rs1  fun3 im[4:0] opcode
+    //               sb    0000000_00011_00000_000_00001_0100011
+    //               sh    0000000_00011_00000_001_00001_0100011
+    //                     imm[12|10:15]  rs2   rs1  fun3 imm[4:1|11]   opcode
+    //               beq   0000000_______00001_00001_000_00010_________1100011
     #1000 $finish;
 end
 
@@ -112,13 +118,14 @@ end
 
 initial begin
     $readmemh("./regs.data",testbench.dut.u_id_stage.u_regs_file.regs);
+    //$readmemh("./inst_rom.data",testbench.u_data_ram.mem);
 end
 
 initial begin
     $fsdbDumpfile("testbench");
-    $fsdbDumpvars("+parameter,+struct");
+    //$fsdbDumpvars("+parameter,+struct");
     $fsdbDumpvars("+all");
-    //$fsdbDumpvars(0, top);
+    $fsdbDumpvars(0, testbench);
 end
 endmodule
 

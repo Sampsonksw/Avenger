@@ -37,6 +37,6 @@ verdi:
 		-ssf testbench.fsdb \
 		-nologo &
 clean:
-	rm -rf *.log simv* *.fsdb csrc verdiLog ucli.key novas.*
+	rm -rf *.log simv* *.fsdb csrc ucli.key 
 # vim:ft=make
 #

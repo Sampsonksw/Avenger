@@ -12,90 +12,118 @@
 
 
 module id_stage(
-    input logic                     clk_i,
-    input logic                     rst_ni,
+    input   logic                   clk_i,
+    input   logic                   rst_ni,
     // from IF-ID pipeline register
-    input logic [31:0]              instr_rdata_i,   //instr data
-    input logic [31:0]              instr_addr_i,
+    input   logic   [31:0]          instr_rdata_i,   //instr data
+    input   logic   [31:0]          instr_addr_i,
     // output to EX
+    ////instr addr
+    output  logic   [31:0]          instr_addr_ex_o,
     ////rd addr
-    output logic [4:0]              rd_addr_ex_o,       //destination reg addr
-    output logic                    rd_wr_en_ex_o,
+    output  logic   [4:0]           rd_addr_ex_o,       //destination reg addr
+    output  logic                   rd_wr_en_ex_o,
     ////
-    output logic                    alu_sel_ex_o,
-    output logic [31:0]             operand_a_ex_o,
-    output logic [31:0]             operand_b_ex_o,
-    output milano_pkg::alu_opt_e    alu_operate_ex_o,
+    output  logic                   alu_sel_ex_o,
+    output  logic   [31:0]          rs1_rdata_ex_o,
+    output  logic   [31:0]          rs2_rdata_ex_o,
+    output  logic   [31:0]          operand_a_ex_o,
+    output  logic   [31:0]          operand_b_ex_o,
+    output  milano_pkg::alu_opt_e   alu_operate_ex_o,
     output  logic                   lsu_we_ex_o,
     output  logic                   lsu_req_ex_o,
     output  milano_pkg::lsu_opt_e   lsu_operate_ex_o,
+    output  logic                   cond_jump_instr_ex_o,
+    //output  logic   [31:0]          jump_imm_ex_o       ,
+    output  milano_pkg::jump_opt_e  jump_operate_ex_o   ,
     // from EX
-    input  logic                    we_i,
-    input  logic [4:0]              waddr_i,
-    input  logic [31:0]             wdata_i
+    input   logic                   we_i,
+    input   logic   [4:0]           waddr_i,
+    input   logic   [31:0]          wdata_i
 
 );
 
     import milano_pkg::*;
-    logic [31:0]            rs1_rdata_i, rs2_rdata_i;
-    logic [4:0]             rs1_addr_o, rs2_addr_o,rd_addr_o;
-    logic [31:0]            operand_a, operand_b;
+    logic   [31:0]          instr_addr_o;
+    logic   [31:0]          rs1_rdata_i, rs2_rdata_i, rs1_rdata_o, rs2_rdata_o;
+    logic   [4:0]           rs1_addr_o, rs2_addr_o,rd_addr_o;
+    logic   [31:0]          operand_a, operand_b;
     milano_pkg::alu_opt_e   alu_operate_o;
     logic                   rd_wr_en_o, alu_sel_o;
     logic                   lsu_we, lsu_req;
     milano_pkg::lsu_opt_e   lsu_operate_o;
+    logic                   cond_jump_instr_o;
+    logic   [31:0]          jump_imm_o;
+    milano_pkg::jump_opt_e  jump_operate_o;
+
 /************	decoder inst	******************/
 decoder u_decoder(
-    .clk_i          ( clk_i         ),
-    .rst_ni         ( rst_ni        ),
+    .clk_i              ( clk_i             ),
+    .rst_ni             ( rst_ni            ),
     // from IF-ID pipeline register
-    .instr_rdata_i  ( instr_rdata_i ),      //instr data
-    .instr_addr_i   ( instr_addr_i  ),      //instr addr
+    .instr_rdata_i      ( instr_rdata_i     ),      //instr data
+    .instr_addr_i       ( instr_addr_i      ),      //instr addr
     // from register file
-    .rs1_rdata_i    ( rs1_rdata_i   ),      //source reg1
-    .rs2_rdata_i    ( rs2_rdata_i   ),      //source reg2
+    .rs1_rdata_i        ( rs1_rdata_i       ),      //source reg1
+    .rs2_rdata_i        ( rs2_rdata_i       ),      //source reg2
     // output to register file
-    .rs1_addr_o     ( rs1_addr_o    ),      //source reg1 addr
-    .rs2_addr_o     ( rs2_addr_o    ),      //source reg2 addr
-    // output to ID-EX pipeline register
-    .rd_addr_o      ( rd_addr_o     ),      //destination reg addr
-    .rd_wr_en_o     ( rd_wr_en_o    ),
-    .alu_sel_o      ( alu_sel_o     ),
-    .operand_a_o    ( operand_a     ),
-    .operand_b_o    ( operand_b     ),
-    .alu_operate_o  ( alu_operate_o ),
-    .lsu_we_o       ( lsu_we        ),
-    .lsu_req_o      ( lsu_req       ),
-    .lsu_operate_o  ( lsu_operate_o )
-
+    .rs1_addr_o         ( rs1_addr_o        ),      //source reg1 addr
+    .rs2_addr_o         ( rs2_addr_o        ),      //source reg2 addr
+    // output to ID-EX pipeline register    
+    .instr_addr_o       ( instr_addr_o      ),
+    .rd_addr_o          ( rd_addr_o         ),      //destination reg addr
+    .rd_wr_en_o         ( rd_wr_en_o        ),
+    .alu_sel_o          ( alu_sel_o         ),
+    .operand_a_o        ( operand_a         ),
+    .operand_b_o        ( operand_b         ),
+    .alu_operate_o      ( alu_operate_o     ),
+    .lsu_we_o           ( lsu_we            ),
+    .lsu_req_o          ( lsu_req           ),
+    .lsu_operate_o      ( lsu_operate_o     ),
+    .cond_jump_instr_o  ( cond_jump_instr_o ),
+    //.jump_imm_o         ( jump_imm_o        ),
+    .jump_operate_o     ( jump_operate_o    )
 
 );
 
 /************	id_ex_reg inst	******************/
 id_ex_reg u_id_ex_reg(
-    .clk_i              ( clk_i             ),
-    .rst_ni             ( rst_ni            ),
+    .clk_i                  ( clk_i                 ),
+    .rst_ni                 ( rst_ni                ),
     //from decoder
-    .rd_addr_i          ( rd_addr_o         ),
-    .rd_wr_en_i         ( rd_wr_en_o        ),
-    .alu_sel_i          ( alu_sel_o         ),
-    .operand_a_i        ( operand_a         ),
-    .operand_b_i        ( operand_b         ),
-    .alu_operate_i      ( alu_operate_o     ),
-    .lsu_we_i           ( lsu_we            ), 
-    .lsu_req_i          ( lsu_req           ), 
-    .lsu_operate_i      ( lsu_operate_o     ), 
+    .instr_addr_i           ( instr_addr_o          ),
+    .rd_addr_i              ( rd_addr_o             ),
+    .rd_wr_en_i             ( rd_wr_en_o            ),
+    .alu_sel_i              ( alu_sel_o             ),
+    .rs1_rdata_i            ( rs1_rdata_i           ),              
+    .rs2_rdata_i            ( rs2_rdata_i           ), 
+    .operand_a_i            ( operand_a             ),
+    .operand_b_i            ( operand_b             ),
+    .alu_operate_i          ( alu_operate_o         ),
+    .lsu_we_i               ( lsu_we                ), 
+    .lsu_req_i              ( lsu_req               ), 
+    .lsu_operate_i          ( lsu_operate_o         ),
+    .cond_jump_instr_i      ( cond_jump_instr_o     ),
+    //.jump_imm_i             ( jump_imm_o            ),
+    .jump_operate_i         ( jump_operate_o        ),
 
     //to EX
-    .rd_addr_ex_o       ( rd_addr_ex_o      ),
-    .rd_wr_en_ex_o      ( rd_wr_en_ex_o     ),
-    .alu_sel_ex_o       ( alu_sel_ex_o      ),
-    .operand_a_ex_o     ( operand_a_ex_o    ),
-    .operand_b_ex_o     ( operand_b_ex_o    ),
-    .alu_operate_ex_o   ( alu_operate_ex_o  ),
-    .lsu_we_ex_o        ( lsu_we_ex_o       ),
-    .lsu_req_ex_o       ( lsu_req_ex_o      ),
-    .lsu_operate_ex_o   ( lsu_operate_ex_o  )
+    
+    .instr_addr_ex_o        ( instr_addr_ex_o       ),
+    .rd_addr_ex_o           ( rd_addr_ex_o          ),
+    .rd_wr_en_ex_o          ( rd_wr_en_ex_o         ),
+    .alu_sel_ex_o           ( alu_sel_ex_o          ),
+    .rs1_rdata_ex_o         ( rs1_rdata_ex_o        ),
+    .rs2_rdata_ex_o         ( rs2_rdata_ex_o        ),
+    .operand_a_ex_o         ( operand_a_ex_o        ),
+    .operand_b_ex_o         ( operand_b_ex_o        ),
+    .alu_operate_ex_o       ( alu_operate_ex_o      ),
+    .lsu_we_ex_o            ( lsu_we_ex_o           ),
+    .lsu_req_ex_o           ( lsu_req_ex_o          ),
+    .lsu_operate_ex_o       ( lsu_operate_ex_o      ),
+    .cond_jump_instr_ex_o   ( cond_jump_instr_ex_o  ),
+    //.jump_imm_ex_o          ( jump_imm_ex_o         ),
+    .jump_operate_ex_o      ( jump_operate_ex_o     )
 );
 
 /************	regs file inst	******************/

@@ -50,18 +50,32 @@ typedef enum logic [5:0] {
 
 typedef enum logic [3:0] {
   // Load
-  LSU_LB    = 4'h2,
-  LSU_LH    = 4'h1,
-  LSU_LW    = 4'h0,
-  LSU_LBU   = 4'h6,
-  LSU_LHU   = 4'h5,
+  LSU_LW    , //4'b0010
+  LSU_LH    , //4'b0001
+  LSU_LB    , //4'b0000
+  LSU_LBU   , //4'b0110
+  LSU_LHU   , //4'b0101
   // Store
-  LSU_SB    = 4'h7,
-  LSU_SH    = 4'h8,
-  LSU_SW    = 4'h9,
+  LSU_SB    , //4'b
+  LSU_SH    ,
+  LSU_SW    ,
 
 
-  LSU_NONE        = 4'hf
+  LSU_NONE  
 
 } lsu_opt_e;
+
+typedef enum logic [3:0] {
+  JUMP_BEQ  ,
+  JUMP_BNE  ,
+  JUMP_BLT  ,
+  JUMP_BGE  ,
+  JUMP_BLTU ,
+  JUMP_BGEU ,
+  JUMP_JAL  ,
+  JUMP_JALR ,
+
+  JUMP_NONE
+} jump_opt_e;
+
 endpackage
