@@ -34,7 +34,7 @@ module id_stage(
     output  logic                   lsu_req_ex_o,
     output  milano_pkg::lsu_opt_e   lsu_operate_ex_o,
     output  logic                   cond_jump_instr_ex_o,
-    //output  logic   [31:0]          jump_imm_ex_o       ,
+    output  logic   [31:0]          jump_imm_ex_o       ,
     output  milano_pkg::jump_opt_e  jump_operate_ex_o   ,
     // from EX
     input   logic                   we_i,
@@ -81,7 +81,7 @@ decoder u_decoder(
     .lsu_req_o          ( lsu_req           ),
     .lsu_operate_o      ( lsu_operate_o     ),
     .cond_jump_instr_o  ( cond_jump_instr_o ),
-    //.jump_imm_o         ( jump_imm_o        ),
+    .jump_imm_o         ( jump_imm_o        ),
     .jump_operate_o     ( jump_operate_o    )
 
 );
@@ -104,7 +104,7 @@ id_ex_reg u_id_ex_reg(
     .lsu_req_i              ( lsu_req               ), 
     .lsu_operate_i          ( lsu_operate_o         ),
     .cond_jump_instr_i      ( cond_jump_instr_o     ),
-    //.jump_imm_i             ( jump_imm_o            ),
+    .jump_imm_i             ( jump_imm_o            ),
     .jump_operate_i         ( jump_operate_o        ),
 
     //to EX
@@ -122,7 +122,7 @@ id_ex_reg u_id_ex_reg(
     .lsu_req_ex_o           ( lsu_req_ex_o          ),
     .lsu_operate_ex_o       ( lsu_operate_ex_o      ),
     .cond_jump_instr_ex_o   ( cond_jump_instr_ex_o  ),
-    //.jump_imm_ex_o          ( jump_imm_ex_o         ),
+    .jump_imm_ex_o          ( jump_imm_ex_o         ),
     .jump_operate_ex_o      ( jump_operate_ex_o     )
 );
 

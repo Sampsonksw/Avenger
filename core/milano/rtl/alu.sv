@@ -18,6 +18,7 @@ module alu(
     input   logic   [31:0]              operand_b_i     ,
     input   logic   [4:0]               rd_addr_i       ,
     input   logic                       rd_we_i         ,
+    input   logic   [31:0]              instr_addr_i    , // for AUIPC
     output  logic                       alu_rd_we_o     ,
     output  logic   [4:0]               alu_rd_waddr_o  ,
     output  logic   [31:0]              alu_rd_wdata_o  ,
@@ -56,6 +57,9 @@ module alu(
             alu_rd_waddr_o   = 32'h0;
             alu_rd_wdata_o  = 32'h0;
         end else begin
+            alu_rd_we_o    =  1'h0;
+            alu_rd_waddr_o   = 32'h0;
+            alu_rd_wdata_o  = 32'h0;
             case(operate_i)
                 ALU_ADD: begin
                     alu_rd_we_o = rd_we_i;
@@ -106,6 +110,11 @@ module alu(
                     alu_rd_we_o = rd_we_i;
                     alu_rd_waddr_o=rd_addr_i;
                     alu_rd_wdata_o = sltu_op_a_op_b;
+                end
+                AUIPC   :   begin
+                    alu_rd_we_o = rd_we_i;
+                    alu_rd_waddr_o=rd_addr_i;
+                    alu_rd_wdata_o = sll_op_a_op_b + instr_addr_i;
                 end
                 default: begin 
                 end

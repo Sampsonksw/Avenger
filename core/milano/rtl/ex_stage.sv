@@ -29,7 +29,7 @@ module ex_stage(
     input   milano_pkg::lsu_opt_e   lsu_operate_i       ,
 
     input   logic                   cond_jump_instr_i   ,
-    //input   logic   [31:0]          jump_imm_i          ,
+    input   logic   [31:0]          jump_imm_i          ,
     input   milano_pkg::jump_opt_e  jump_operate_i      ,
     // Write back, to MEM/regs
     output  logic                   rd_we_o             ,
@@ -69,6 +69,7 @@ alu u_alu(
     .operand_b_i    ( alu_operand_b_i   ),
     .rd_addr_i      ( rd_addr_i         ),
     .rd_we_i        ( rd_we_i           ),
+    .instr_addr_i   ( instr_addr_i      ),
     .alu_rd_we_o    ( alu_rd_we_o       ),
     .alu_rd_waddr_o ( alu_rd_waddr_o    ),
     .alu_rd_wdata_o ( alu_rd_wdata_o    ),
@@ -106,9 +107,20 @@ lsu u_lsu(
 );
 
 
+    logic   rs1_equal_rs2, rs1_less_rs2, rs1_less_rs2_unsigned;
+    logic   beq_jump_enable, bne_jump_enable, blt_jump_enable, bge_jump_enable, bltu_jump_enable, bgeu_jump_enable;
 
-    logic   beq_jump_enable;
-    assign  beq_jump_enable = (rs1_rdata_i == rs2_rdata_i) ? 1'b1 : 1'b0;
+    assign  rs1_equal_rs2   =   rs1_rdata_i == rs2_rdata_i;
+    assign  rs1_less_rs2    =   rs1_rdata_i < rs2_rdata_i;
+    assign  rs1_less_rs2_unsigned = $unsigned(rs1_rdata_i) < $unsigned(rs2_rdata_i);
+
+    assign  beq_jump_enable =   rs1_equal_rs2  ? 1'b1 : 1'b0;
+    assign  bne_jump_enable =   ~rs1_equal_rs2 ? 1'b1 : 1'b0;
+    assign  blt_jump_enable =   rs1_less_rs2   ? 1'b1 : 1'b0;
+    assign  bge_jump_enable =   ~rs1_less_rs2  ? 1'b1 : 1'b0;
+    assign  bltu_jump_enable=   rs1_less_rs2_unsigned ? 1'b1 : 1'b0;
+    assign  bgeu_jump_enable=   ~rs1_less_rs2_unsigned? 1'b1 : 1'b0;
+
     always_comb begin
         if(!rst_ni)begin
             jump_flag_o = 1'h0;
@@ -121,8 +133,38 @@ lsu u_lsu(
                     jump_flag_o = beq_jump_enable && cond_jump_instr_i;
                     jump_addr_o = add_op_a_op_b;
                 end
-                default: ;
+                JUMP_BNE :  begin
+                    jump_flag_o = bne_jump_enable && cond_jump_instr_i;
+                    jump_addr_o = add_op_a_op_b;
+                end
+                JUMP_BLT :  begin
+                    jump_flag_o = blt_jump_enable && cond_jump_instr_i;
+                    jump_addr_o = add_op_a_op_b;
+                end
+                JUMP_BGE :  begin
+                    jump_flag_o = bge_jump_enable && cond_jump_instr_i;
+                    jump_addr_o = add_op_a_op_b;
+                end
+                JUMP_BLTU:  begin
+                    jump_flag_o = bltu_jump_enable && cond_jump_instr_i;
+                    jump_addr_o = add_op_a_op_b;
+                end
+                JUMP_BGEU : begin
+                    jump_flag_o = bgeu_jump_enable && cond_jump_instr_i;
+                    jump_addr_o = add_op_a_op_b;
+                end
+                JUMP_JAL :  begin
+                    jump_flag_o = 1'b1;
+                    jump_addr_o = jump_imm_i + instr_addr_i;
+                end
+                JUMP_JALR : begin
+                    jump_flag_o = 1'b1;
+                    jump_addr_o = jump_imm_i + rs1_rdata_i;
+                end
+                default: jump_flag_o = 1'h0;
             endcase
         end
     end
+
+
 endmodule

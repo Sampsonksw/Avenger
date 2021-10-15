@@ -40,24 +40,39 @@ module decoder(
     output  milano_pkg::lsu_opt_e   lsu_operate_o,
 
     output  logic                   cond_jump_instr_o,
-    //output  logic   [31:0]          jump_imm_o,
+    output  logic   [31:0]          jump_imm_o,
     output  milano_pkg::jump_opt_e  jump_operate_o
 
 );
     import milano_pkg::*;
     opcode_e    opcode;
     logic [31:0] instr;
+
     logic [11:0] i_type_imm;
     logic [11:0] s_type_imm;
     logic [11:0] b_type_imm;
-    logic [31:0] cond_jump_imm_ext;
+    logic [19:0] j_type_imm;
+    logic [19:0] u_type_imm;
 
+    logic [31:0] i_type_imm_extend;
+    logic [31:0] s_type_imm_extend;
+    logic [31:0] b_type_imm_extend;
+    logic [31:0] j_type_imm_extend;
+    logic [31:0] u_type_imm_extend;
+    
     assign instr_addr_o = instr_addr_i;
     assign instr =  instr_rdata_i;
     assign i_type_imm = instr[31:20];
     assign s_type_imm = {instr[31:25],instr[11:7]};
     assign b_type_imm = {instr[30],instr[7],instr[30:25],instr[11:8]};
-    assign cond_jump_imm_ext = {{19{b_type_imm[11]}},b_type_imm,1'b0}; 
+    assign j_type_imm = {instr[31],instr[19:12],instr[20],instr[30:21]};
+    assign u_type_imm = instr[31:12];
+    
+    assign i_type_imm_extend = {{20{i_type_imm[11]}},i_type_imm};
+    assign s_type_imm_extend = {{20{s_type_imm[11]}},s_type_imm};
+    assign b_type_imm_extend = {{19{b_type_imm[11]}},b_type_imm,1'b0};
+    assign j_type_imm_extend = {{11{j_type_imm[11]}},j_type_imm,1'b0};
+    assign u_type_imm_extend = {{12{u_type_imm[19]}},u_type_imm};
 //    assign rs1_addr_o      = instr[19:15];
 //    assign rs2_addr_o      = instr[24:20];
 //    assign funct           = function_e'({instr[31:25],instr[14:12]});
@@ -84,7 +99,7 @@ module decoder(
             lsu_operate_o       = LSU_NONE;
 
             cond_jump_instr_o   = 1'b0;
-            //jump_imm_o          = 32'h0;
+            jump_imm_o          = 32'h0;
             jump_operate_o      = JUMP_NONE;
         end else begin
             opcode              = opcode_e'(instr[6:0]);
@@ -102,7 +117,7 @@ module decoder(
             lsu_operate_o       = LSU_NONE;
 
             cond_jump_instr_o   = 1'b0;
-            //jump_imm_o          = 32'h0;
+            jump_imm_o          = 32'h0;
             jump_operate_o      = JUMP_NONE;
             unique case (opcode)
                 OPCODE_OP : begin
@@ -126,7 +141,7 @@ module decoder(
                 end
                 OPCODE_OP_IMM : begin
                     operand_a_o = rs1_rdata_i;
-                    operand_b_o = {{20{i_type_imm[11]}},i_type_imm};
+                    operand_b_o = i_type_imm_extend;
                     rd_wr_en_o  = 1'b1;
                     alu_sel_o   = 1'b1;
                     unique case (instr[14:12])                      //funct3
@@ -147,7 +162,7 @@ module decoder(
                 end
                 OPCODE_LOAD : begin
                     operand_a_o = rs1_rdata_i;
-                    operand_b_o = {{20{i_type_imm[11]}},i_type_imm};
+                    operand_b_o = i_type_imm_extend;
                     alu_sel_o   = 1'b0; 
                     rd_wr_en_o  = 1'b1;
                     lsu_we_o    = 1'b0;
@@ -163,7 +178,7 @@ module decoder(
                 end
                 OPCODE_STORE : begin
                     operand_a_o = rs1_rdata_i;
-                    operand_b_o = {{20{s_type_imm[11]}},s_type_imm};
+                    operand_b_o = s_type_imm_extend;
                     alu_sel_o   = 1'b0;
                     rd_wr_en_o  = 1'b0;
                     lsu_we_o    = 1'b1;
@@ -176,9 +191,8 @@ module decoder(
                     endcase
                 end
                 OPCODE_BRANCH : begin
-
                     operand_a_o = instr_addr_i;
-                    operand_a_o = cond_jump_imm_ext;
+                    operand_b_o = b_type_imm_extend;
                     cond_jump_instr_o= 1'b1;
                     //jump_imm_o  ={{19{b_type_imm[11]}},b_type_imm,1'b0};
                     unique case (instr[14:12])
@@ -191,6 +205,48 @@ module decoder(
                         default: ;
                     endcase
                 end
+                OPCODE_JAL  :   begin
+                    operand_a_o = instr_addr_i;
+                    operand_b_o = 3'h4;
+                    rd_wr_en_o  = 1'b1;
+                    alu_sel_o   = 1'b1;
+                    alu_operate_o = ALU_ADD;
+                    jump_operate_o = JUMP_JAL;
+                    jump_imm_o  = j_type_imm_extend;
+                end
+                OPCODE_JALR :   begin
+                    if(instr[14:12]==3'b00)begin
+                        operand_a_o = instr_addr_i;
+                        operand_b_o = 3'h4;
+                        rd_wr_en_o  = 1'b1;
+                        alu_sel_o   = 1'b1;
+                        alu_operate_o = ALU_ADD;
+                        jump_operate_o = JUMP_JALR;
+                        jump_imm_o  = i_type_imm_extend;
+                    end else begin
+                        operand_a_o = 32'h0;
+                        operand_b_o = 3'h0;
+                        rd_wr_en_o  = 1'b0;
+                        alu_sel_o   = 1'b0;
+                        alu_operate_o = ALU_NONE;
+                        jump_operate_o = JUMP_NONE;
+                        jump_imm_o  = 32'h0;
+                    end
+                end
+                OPCODE_LUI  :   begin
+                        operand_a_o = u_type_imm_extend;
+                        operand_b_o = 32'd12;
+                        rd_wr_en_o  = 1'b1;
+                        alu_sel_o   = 1'b1;
+                        alu_operate_o = ALU_SLL;
+                end
+                OPCODE_AUIPC:   begin
+                        operand_a_o = u_type_imm_extend;
+                        operand_b_o = 32'd12;
+                        rd_wr_en_o  = 1'b1;
+                        alu_sel_o   = 1'b1;
+                        alu_operate_o = AUIPC;
+                end                        
                 default: ;
             endcase
         end

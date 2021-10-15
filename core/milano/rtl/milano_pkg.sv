@@ -43,6 +43,8 @@ typedef enum logic [5:0] {
   // Set lower than
   ALU_SLT,
   ALU_SLTU,
+  // AUIPC
+  AUIPC,
 
   ALU_NONE        = 6'h3f
 

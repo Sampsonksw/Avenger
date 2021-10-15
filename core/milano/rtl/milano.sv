@@ -73,7 +73,7 @@ if_stage u_if_stage(
     logic                   lsu_mem_req_id2ex; 
     milano_pkg::lsu_opt_e   lsu_operate_id2ex;
     logic                   cond_jump_instr_id2ex;
-    //logic   [31:0]          jump_imm_id2ex;
+    logic   [31:0]          jump_imm_id2ex;
     milano_pkg::jump_opt_e  jump_operate_id2ex;
     logic                   we_ex2id;
     logic   [4:0]           waddr_ex2id;
@@ -102,7 +102,7 @@ id_stage u_id_stage(
     .lsu_req_ex_o           ( lsu_mem_req_id2ex     ),
     .lsu_operate_ex_o       ( lsu_operate_id2ex     ),
     .cond_jump_instr_ex_o   ( cond_jump_instr_id2ex ),
-    //.jump_imm_ex_o          ( jump_imm_id2ex        ),
+    .jump_imm_ex_o          ( jump_imm_id2ex        ),
     .jump_operate_ex_o      ( jump_operate_id2ex    ),
     // from EX
     .we_i                   ( we_ex2id              ),
@@ -131,7 +131,7 @@ ex_stage u_ex_stage(
     .lsu_operate_i      ( lsu_operate_id2ex     ),
 
     .cond_jump_instr_i  ( cond_jump_instr_id2ex ),
-    //.jump_imm_i         ( jump_imm_id2ex        ),
+    .jump_imm_i         ( jump_imm_id2ex        ),
     .jump_operate_i     ( jump_operate_id2ex    ),
     // Write back, to MEM/regs
     .rd_we_o            ( we_ex2id              ),

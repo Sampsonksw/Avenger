@@ -28,7 +28,7 @@ module id_ex_reg(
     input   logic                   lsu_req_i           ,
     input   milano_pkg::lsu_opt_e   lsu_operate_i       ,
     input   logic                   cond_jump_instr_i   ,
-    //input   logic   [31:0]          jump_imm_i          ,
+    input   logic   [31:0]          jump_imm_i          ,
     input   milano_pkg::jump_opt_e  jump_operate_i      ,   
     //to EX
     output  logic   [31:0]          instr_addr_ex_o     ,
@@ -44,7 +44,7 @@ module id_ex_reg(
     output  logic                   lsu_req_ex_o        ,
     output  milano_pkg::lsu_opt_e   lsu_operate_ex_o    ,           
     output  logic                   cond_jump_instr_ex_o,
-    //output  logic   [31:0]          jump_imm_ex_o       ,
+    output  logic   [31:0]          jump_imm_ex_o       ,
     output  milano_pkg::jump_opt_e  jump_operate_ex_o   
 
 );
@@ -64,7 +64,7 @@ module id_ex_reg(
             lsu_req_ex_o            <= 1'b0; 
             lsu_operate_ex_o        <= LSU_NONE;
             cond_jump_instr_ex_o    <= 1'h0;
-            //jump_imm_ex_o           <= 32'h0;
+            jump_imm_ex_o           <= 32'h0;
             jump_operate_ex_o       <= JUMP_NONE;
         end else begin
             instr_addr_ex_o         <= instr_addr_i;
@@ -80,7 +80,7 @@ module id_ex_reg(
             lsu_req_ex_o            <= lsu_req_i ;
             lsu_operate_ex_o        <= lsu_operate_i;
             cond_jump_instr_ex_o    <= cond_jump_instr_i;
-            //jump_imm_ex_o           <= jump_imm_i;
+            jump_imm_ex_o           <= jump_imm_i;
             jump_operate_ex_o       <= jump_operate_i;
         end
     end
