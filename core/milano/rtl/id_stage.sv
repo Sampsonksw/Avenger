@@ -25,11 +25,15 @@ module id_stage(
     output  logic                   rd_wr_en_ex_o,
     ////
     output  logic                   alu_sel_ex_o,
+    output  logic                   md_sel_ex_o,
     output  logic   [31:0]          rs1_rdata_ex_o,
     output  logic   [31:0]          rs2_rdata_ex_o,
-    output  logic   [31:0]          operand_a_ex_o,
-    output  logic   [31:0]          operand_b_ex_o,
+    output  logic   [31:0]          alu_operand_a_ex_o,
+    output  logic   [31:0]          alu_operand_b_ex_o,
     output  milano_pkg::alu_opt_e   alu_operate_ex_o,
+    output  logic   [31:0]          md_operand_a_ex_o,
+    output  logic   [31:0]          md_operand_b_ex_o,
+    output  milano_pkg::md_opt_e    md_operate_ex_o,
     output  logic                   lsu_we_ex_o,
     output  logic                   lsu_req_ex_o,
     output  milano_pkg::lsu_opt_e   lsu_operate_ex_o,
@@ -47,9 +51,11 @@ module id_stage(
     logic   [31:0]          instr_addr_o;
     logic   [31:0]          rs1_rdata_i, rs2_rdata_i, rs1_rdata_o, rs2_rdata_o;
     logic   [4:0]           rs1_addr_o, rs2_addr_o,rd_addr_o;
-    logic   [31:0]          operand_a, operand_b;
+    logic   [31:0]          alu_operand_a, alu_operand_b;
+    logic   [31:0]          md_operand_a, md_operand_b;
     milano_pkg::alu_opt_e   alu_operate_o;
-    logic                   rd_wr_en_o, alu_sel_o;
+    milano_pkg::md_opt_e    md_operate_o;
+    logic                   rd_wr_en_o, alu_sel_o, md_sel_o;
     logic                   lsu_we, lsu_req;
     milano_pkg::lsu_opt_e   lsu_operate_o;
     logic                   cond_jump_instr_o;
@@ -74,9 +80,13 @@ decoder u_decoder(
     .rd_addr_o          ( rd_addr_o         ),      //destination reg addr
     .rd_wr_en_o         ( rd_wr_en_o        ),
     .alu_sel_o          ( alu_sel_o         ),
-    .operand_a_o        ( operand_a         ),
-    .operand_b_o        ( operand_b         ),
+    .md_sel_o           ( md_sel_o          ),
+    .alu_operand_a_o    ( alu_operand_a     ),
+    .alu_operand_b_o    ( alu_operand_b     ),
     .alu_operate_o      ( alu_operate_o     ),
+    .md_operand_a_o     ( md_operand_a      ),
+    .md_operand_b_o     ( md_operand_b      ),
+    .md_operate_o       ( md_operate_o      ),
     .lsu_we_o           ( lsu_we            ),
     .lsu_req_o          ( lsu_req           ),
     .lsu_operate_o      ( lsu_operate_o     ),
@@ -95,11 +105,15 @@ id_ex_reg u_id_ex_reg(
     .rd_addr_i              ( rd_addr_o             ),
     .rd_wr_en_i             ( rd_wr_en_o            ),
     .alu_sel_i              ( alu_sel_o             ),
+    .md_sel_i               ( md_sel_o              ),
     .rs1_rdata_i            ( rs1_rdata_i           ),              
     .rs2_rdata_i            ( rs2_rdata_i           ), 
-    .operand_a_i            ( operand_a             ),
-    .operand_b_i            ( operand_b             ),
+    .alu_operand_a_i        ( alu_operand_a         ),
+    .alu_operand_b_i        ( alu_operand_b         ),
     .alu_operate_i          ( alu_operate_o         ),
+    .md_operand_a_i         ( md_operand_a          ),
+    .md_operand_b_i         ( md_operand_b          ),
+    .md_operate_i           ( md_operate_o          ),
     .lsu_we_i               ( lsu_we                ), 
     .lsu_req_i              ( lsu_req               ), 
     .lsu_operate_i          ( lsu_operate_o         ),
@@ -113,11 +127,15 @@ id_ex_reg u_id_ex_reg(
     .rd_addr_ex_o           ( rd_addr_ex_o          ),
     .rd_wr_en_ex_o          ( rd_wr_en_ex_o         ),
     .alu_sel_ex_o           ( alu_sel_ex_o          ),
+    .md_sel_ex_o            ( md_sel_ex_o           ),
     .rs1_rdata_ex_o         ( rs1_rdata_ex_o        ),
     .rs2_rdata_ex_o         ( rs2_rdata_ex_o        ),
-    .operand_a_ex_o         ( operand_a_ex_o        ),
-    .operand_b_ex_o         ( operand_b_ex_o        ),
+    .alu_operand_a_ex_o     ( alu_operand_a_ex_o    ),
+    .alu_operand_b_ex_o     ( alu_operand_b_ex_o    ),
     .alu_operate_ex_o       ( alu_operate_ex_o      ),
+    .md_operand_a_ex_o      ( md_operand_a_ex_o     ),
+    .md_operand_b_ex_o      ( md_operand_b_ex_o     ),
+    .md_operate_ex_o        ( md_operate_ex_o       ),
     .lsu_we_ex_o            ( lsu_we_ex_o           ),
     .lsu_req_ex_o           ( lsu_req_ex_o          ),
     .lsu_operate_ex_o       ( lsu_operate_ex_o      ),

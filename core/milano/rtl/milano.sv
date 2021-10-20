@@ -64,11 +64,15 @@ if_stage u_if_stage(
     logic   [4:0]           rd_addr_id2ex;
     logic                   rd_wr_en_id2ex;
     logic                   alu_sel_id2ex;
+    logic                   md_sel_id2ex;
     logic   [31:0]          rs1_rdata_id2ex;
     logic   [31:0]          rs2_rdata_id2ex;
-    logic   [31:0]          operand_a_id2ex;
-    logic   [31:0]          operand_b_id2ex;
+    logic   [31:0]          alu_operand_a_id2ex;
+    logic   [31:0]          alu_operand_b_id2ex;
     milano_pkg::alu_opt_e   alu_operate_id2ex;
+    logic   [31:0]          md_operand_a_id2ex;
+    logic   [31:0]          md_operand_b_id2ex;
+    milano_pkg::md_opt_e    md_operate_id2ex;
     logic                   lsu_mem_we_id2ex;  
     logic                   lsu_mem_req_id2ex; 
     milano_pkg::lsu_opt_e   lsu_operate_id2ex;
@@ -93,11 +97,15 @@ id_stage u_id_stage(
     .rd_wr_en_ex_o          ( rd_wr_en_id2ex        ),  //rd register write enable
     ////
     .alu_sel_ex_o           ( alu_sel_id2ex         ),
+    .md_sel_ex_o            ( md_sel_id2ex          ),
     .rs1_rdata_ex_o         ( rs1_rdata_id2ex       ),
     .rs2_rdata_ex_o         ( rs2_rdata_id2ex       ),
-    .operand_a_ex_o         ( operand_a_id2ex       ),  //operand_a data
-    .operand_b_ex_o         ( operand_b_id2ex       ),  //operand_b data
+    .alu_operand_a_ex_o     ( alu_operand_a_id2ex   ),  //alu_operand_a data
+    .alu_operand_b_ex_o     ( alu_operand_b_id2ex   ),  //alu_operand_b data
     .alu_operate_ex_o       ( alu_operate_id2ex     ),
+    .md_operand_a_ex_o      ( md_operand_a_id2ex    ),  //md_operand_a data
+    .md_operand_b_ex_o      ( md_operand_b_id2ex    ),  //md_operand_b data
+    .md_operate_ex_o        ( md_operate_id2ex      ),
     .lsu_we_ex_o            ( lsu_mem_we_id2ex      ),
     .lsu_req_ex_o           ( lsu_mem_req_id2ex     ),
     .lsu_operate_ex_o       ( lsu_operate_id2ex     ),
@@ -119,9 +127,13 @@ ex_stage u_ex_stage(
     // from ID-EX pipeline register
     .instr_addr_i       ( instr_addr_id2ex      ),
     .alu_sel_i          ( alu_sel_id2ex         ),
+    .md_sel_i           ( md_sel_id2ex          ),
     .alu_operate_i      ( alu_operate_id2ex     ),  //alu operate type
-    .alu_operand_a_i    ( operand_a_id2ex       ),  //operand_a data
-    .alu_operand_b_i    ( operand_b_id2ex       ),  //operand_b data
+    .md_operate_i       ( md_operate_id2ex      ),  //alu operate type
+    .alu_operand_a_i    ( alu_operand_a_id2ex   ),  //alu_operand_a data
+    .alu_operand_b_i    ( alu_operand_b_id2ex   ),  //alu_operand_b data
+    .md_operand_a_i     ( md_operand_a_id2ex    ),  //alu_operand_a data
+    .md_operand_b_i     ( md_operand_b_id2ex    ),  //alu_operand_b data
     .rs1_rdata_i        ( rs1_rdata_id2ex       ),
     .rs2_rdata_i        ( rs2_rdata_id2ex       ),
     .rd_addr_i          ( rd_addr_id2ex         ),  //rd  register address

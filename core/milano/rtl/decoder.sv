@@ -32,9 +32,13 @@ module decoder(
     output  logic   [4:0]           rd_addr_o,       //destination reg addr
     output  logic                   rd_wr_en_o,      //destination reg write enable
     output  logic                   alu_sel_o,
-    output  logic   [31:0]          operand_a_o,
-    output  logic   [31:0]          operand_b_o,
+    output  logic                   md_sel_o,
+    output  logic   [31:0]          alu_operand_a_o,
+    output  logic   [31:0]          alu_operand_b_o,
     output  milano_pkg::alu_opt_e   alu_operate_o,
+    output  logic   [31:0]          md_operand_a_o,
+    output  logic   [31:0]          md_operand_b_o,
+    output  milano_pkg::md_opt_e    md_operate_o,
     output  logic                   lsu_we_o,
     output  logic                   lsu_req_o,
     output  milano_pkg::lsu_opt_e   lsu_operate_o,
@@ -86,10 +90,11 @@ module decoder(
         if(!rst_ni)begin
             rs1_addr_o          = 'h0;
             rs2_addr_o          = 'h0;
-            operand_a_o         = 'h0;
-            operand_b_o         = 'h0;
+            alu_operand_a_o         = 'h0;
+            alu_operand_b_o         = 'h0;
             alu_sel_o           = 'h0;
             alu_operate_o       = ALU_NONE;
+            md_operate_o        = MD_NONE;
             rd_addr_o           = 'h0;
             rd_wr_en_o          = 'h0;
             opcode              = OPCODE_DEFAULT;
@@ -106,9 +111,10 @@ module decoder(
             rs1_addr_o          = instr[19:15];
             rs2_addr_o          = instr[24:20];
             alu_sel_o           = 'h0;
-            operand_a_o         = 'h0;
-            operand_b_o         = 'h0;
+            alu_operand_a_o         = 'h0;
+            alu_operand_b_o         = 'h0;
             alu_operate_o       = ALU_NONE;
+            md_operate_o        = MD_NONE;
             rd_addr_o           = instr[11:7];
             rd_wr_en_o          = 'h0;
             rd_wr_en_o          = 1'b0;
@@ -121,8 +127,8 @@ module decoder(
             jump_operate_o      = JUMP_NONE;
             unique case (opcode)
                 OPCODE_OP : begin
-                    operand_a_o = rs1_rdata_i;
-                    operand_b_o = rs2_rdata_i;
+                    alu_operand_a_o = rs1_rdata_i;
+                    alu_operand_b_o = rs2_rdata_i;
                     rd_wr_en_o  = 1'b1;
                     alu_sel_o   = 1'b1;
                     unique case ({instr[31:25], instr[14:12]})  //funct7,funct3
@@ -140,8 +146,8 @@ module decoder(
                     endcase
                 end
                 OPCODE_OP_IMM : begin
-                    operand_a_o = rs1_rdata_i;
-                    operand_b_o = i_type_imm_extend;
+                    alu_operand_a_o = rs1_rdata_i;
+                    alu_operand_b_o = i_type_imm_extend;
                     rd_wr_en_o  = 1'b1;
                     alu_sel_o   = 1'b1;
                     unique case (instr[14:12])                      //funct3
@@ -161,8 +167,8 @@ module decoder(
                     endcase
                 end
                 OPCODE_LOAD : begin
-                    operand_a_o = rs1_rdata_i;
-                    operand_b_o = i_type_imm_extend;
+                    alu_operand_a_o = rs1_rdata_i;
+                    alu_operand_b_o = i_type_imm_extend;
                     alu_sel_o   = 1'b0; 
                     rd_wr_en_o  = 1'b1;
                     lsu_we_o    = 1'b0;
@@ -177,8 +183,8 @@ module decoder(
                     endcase
                 end
                 OPCODE_STORE : begin
-                    operand_a_o = rs1_rdata_i;
-                    operand_b_o = s_type_imm_extend;
+                    alu_operand_a_o = rs1_rdata_i;
+                    alu_operand_b_o = s_type_imm_extend;
                     alu_sel_o   = 1'b0;
                     rd_wr_en_o  = 1'b0;
                     lsu_we_o    = 1'b1;
@@ -191,8 +197,8 @@ module decoder(
                     endcase
                 end
                 OPCODE_BRANCH : begin
-                    operand_a_o = instr_addr_i;
-                    operand_b_o = b_type_imm_extend;
+                    alu_operand_a_o = instr_addr_i;
+                    alu_operand_b_o = b_type_imm_extend;
                     cond_jump_instr_o= 1'b1;
                     //jump_imm_o  ={{19{b_type_imm[11]}},b_type_imm,1'b0};
                     unique case (instr[14:12])
@@ -206,8 +212,8 @@ module decoder(
                     endcase
                 end
                 OPCODE_JAL  :   begin
-                    operand_a_o = instr_addr_i;
-                    operand_b_o = 3'h4;
+                    alu_operand_a_o = instr_addr_i;
+                    alu_operand_b_o = 3'h4;
                     rd_wr_en_o  = 1'b1;
                     alu_sel_o   = 1'b1;
                     alu_operate_o = ALU_ADD;
@@ -216,16 +222,16 @@ module decoder(
                 end
                 OPCODE_JALR :   begin
                     if(instr[14:12]==3'b00)begin
-                        operand_a_o = instr_addr_i;
-                        operand_b_o = 3'h4;
+                        alu_operand_a_o = instr_addr_i;
+                        alu_operand_b_o = 3'h4;
                         rd_wr_en_o  = 1'b1;
                         alu_sel_o   = 1'b1;
                         alu_operate_o = ALU_ADD;
                         jump_operate_o = JUMP_JALR;
                         jump_imm_o  = i_type_imm_extend;
                     end else begin
-                        operand_a_o = 32'h0;
-                        operand_b_o = 3'h0;
+                        alu_operand_a_o = 32'h0;
+                        alu_operand_b_o = 3'h0;
                         rd_wr_en_o  = 1'b0;
                         alu_sel_o   = 1'b0;
                         alu_operate_o = ALU_NONE;
@@ -234,19 +240,37 @@ module decoder(
                     end
                 end
                 OPCODE_LUI  :   begin
-                        operand_a_o = u_type_imm_extend;
-                        operand_b_o = 32'd12;
-                        rd_wr_en_o  = 1'b1;
-                        alu_sel_o   = 1'b1;
-                        alu_operate_o = ALU_SLL;
+                    alu_operand_a_o = u_type_imm_extend;
+                    alu_operand_b_o = 32'd12;
+                    rd_wr_en_o  = 1'b1;
+                    alu_sel_o   = 1'b1;
+                    alu_operate_o = ALU_SLL;
                 end
                 OPCODE_AUIPC:   begin
-                        operand_a_o = u_type_imm_extend;
-                        operand_b_o = 32'd12;
-                        rd_wr_en_o  = 1'b1;
-                        alu_sel_o   = 1'b1;
-                        alu_operate_o = AUIPC;
-                end                        
+                    alu_operand_a_o = u_type_imm_extend;
+                    alu_operand_b_o = 32'd12;
+                    rd_wr_en_o  = 1'b1;
+                    alu_sel_o   = 1'b1;
+                    alu_operate_o = AUIPC;
+                end
+                OPCODE_OP   :   begin
+                    alu_operand_a_o = rs1_rdata_i;
+                    alu_operand_b_o = rs2_rdata_i;
+                    rd_wr_en_o  = 1'b1;
+                    md_sel_o    = 1'b1;
+                    unique case({instr[31:25],instr[14:12]})
+                        {7'h01,3'h00} : md_operate_o= MD_OP_MUL;
+                        {7'h01,3'h01} : md_operate_o= MD_OP_MULH;
+                        {7'h01,3'h02} : md_operate_o= MD_OP_MULSU;
+                        {7'h01,3'h03} : md_operate_o= MD_OP_MULU;
+                        {7'h01,3'h04} : md_operate_o= MD_OP_DIV;
+                        {7'h01,3'h05} : md_operate_o= MD_OP_DIVU;
+                        {7'h01,3'h06} : md_operate_o= MD_OP_REM;
+                        {7'h01,3'h07} : md_operate_o= MD_OP_REMU;
+                        default: ;
+                    endcase
+                end
+
                 default: ;
             endcase
         end

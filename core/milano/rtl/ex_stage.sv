@@ -17,9 +17,13 @@ module ex_stage(
     // from ID-EX pipeline register
     input   logic   [31:0]          instr_addr_i        ,
     input   logic                   alu_sel_i           ,
+    input   logic                   md_sel_i            ,
     input   milano_pkg::alu_opt_e   alu_operate_i       ,
+    input   milano_pkg::md_opt_e    md_operate_i        ,
     input   logic   [31:0]          alu_operand_a_i     ,
     input   logic   [31:0]          alu_operand_b_i     ,
+    input   logic   [31:0]          md_operand_a_i      ,
+    input   logic   [31:0]          md_operand_b_i      ,
     input   logic   [31:0]          rs1_rdata_i         ,
     input   logic   [31:0]          rs2_rdata_i         ,
     input   logic   [4:0]           rd_addr_i           ,
@@ -31,7 +35,7 @@ module ex_stage(
     input   logic                   cond_jump_instr_i   ,
     input   logic   [31:0]          jump_imm_i          ,
     input   milano_pkg::jump_opt_e  jump_operate_i      ,
-    // Write back, to MEM/regs
+    // rd register wirte interface
     output  logic                   rd_we_o             ,
     output  logic   [4:0]           rd_waddr_o          ,
     output  logic   [31:0]          rd_wdata_o          ,
@@ -106,7 +110,9 @@ lsu u_lsu(
 
 );
 
+multdiv u_multdiv(
 
+    );
     logic   rs1_equal_rs2, rs1_less_rs2, rs1_less_rs2_unsigned;
     logic   beq_jump_enable, bne_jump_enable, blt_jump_enable, bge_jump_enable, bltu_jump_enable, bgeu_jump_enable;
 
@@ -168,3 +174,6 @@ lsu u_lsu(
 
 
 endmodule
+
+`default_nettype wire
+
