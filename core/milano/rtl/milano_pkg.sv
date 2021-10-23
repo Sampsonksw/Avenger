@@ -91,7 +91,18 @@ typedef enum logic [3:0] {
   MD_OP_REM,
   MD_OP_REMU,
   MD_OP_NONE
-} md_op_e;
+} md_opt_e;
+
+typedef enum logic [3:0] {
+  // Multiplier/divider
+  CSR_RW,
+  CSR_RS,
+  CSR_RC,
+  CSR_RWI,
+  CSR_RSI,
+  CSR_RCI,
+  CSR_NONE
+} csr_opt_e;
 
 typedef enum logic [11:0] {
   // Machine information
@@ -116,5 +127,7 @@ typedef enum logic [11:0] {
   CSR_MCYCLEH   = 12'hB80,
   CSR_MINSTRETH = 12'hB82
 } csr_num_e;
+
+
 
 endpackage

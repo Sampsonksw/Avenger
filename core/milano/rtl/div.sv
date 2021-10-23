@@ -34,7 +34,8 @@ module div(
     
     output  logic   [31:0]  quotient,
     output  logic   [31:0]  remainder,
-    output  logic           div_done
+    output  logic           div_done,
+    output  logic           div_busy
 );
 
 
@@ -56,6 +57,8 @@ module div(
     assign  start2calc  =   1'b1;
     assign  calc2done   =   leftshift_cnt == 6'd31;
     assign  done2idle   =   1'b1;
+
+    assign  div_busy    =   state_c !== IDLE ;
 
     always_ff @(posedge clk_i, negedge rst_ni)begin
         if(!rst_ni)begin
