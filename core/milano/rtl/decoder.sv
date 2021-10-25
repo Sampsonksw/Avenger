@@ -309,12 +309,32 @@ module decoder(
                     csr_imm_o   = csr_imm_extend;
                     csr_rdata_temp_o = csr_rdata_i;
                     unique case(instr[14:12])
-                        3'h1:   csr_operate_o = CSR_RW;//CSRRW
-                        3'h2:   csr_operate_o = CSR_RS;//CSRRS
-                        3'h3:   csr_operate_o = CSR_RC;//CSRRC
-                        3'h5:   csr_operate_o = CSR_RWI;//CSRRWI
-                        3'h6:   csr_operate_o = CSR_RSI;//CSRRSI
-                        3'h7:   csr_operate_o = CSR_RCI;//CSRRCI
+                        3'h1:   csr_operate_o = CSR_RW;             //CSRRW
+                        3'h2:   begin if(rs1_addr_o==5'h0)begin     //CSRRS
+                                    csr_operate_o = CSR_NONE;
+                                    csr_wr_en_o = 1'b0;
+                                end else begin
+                                    csr_operate_o = CSR_RS;
+                                end
+                        3'h3:   begin if(rs1_addr_o==5'h0)begin     //CSRRC
+                                    csr_operate_o = CSR_NONE;
+                                    csr_wr_en_o = 1'b0;
+                                end else begin
+                                    csr_operate_o = CSR_RC;
+                                end
+                        3'h5:   csr_operate_o = CSR_RWI;            //CSRRWI
+                        3'h6:   begin if(csr_imm_o == 32'h0)begin   //CSRRSI
+                                    csr_operate_o = CSR_NONE;
+                                    csr_wr_en_o = 1'b0;
+                                end else begin
+                                    csr_operate_o = CSR_RSI;
+                                end
+                        3'h7:   begin if(csr_imm_o == 32'h0)begin   //CSRRCI
+                                    csr_operate_o = CSR_NONE;
+                                    csr_wr_en_o = 1'b0;
+                                end else begin
+                                    csr_operate_o = CSR_RCI;
+                                end
                         default: ;
                     endcase
                 end

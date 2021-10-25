@@ -91,7 +91,7 @@ module csr_reg(
             minstret    <= 'h0;
             mcycleh     <= 'h0; 
             minstreth   <= 'h0;
-        end else if (ex_waddr_i)begin
+        end else if (ex_we_i)begin
             unique case(ex_waddr_i)
                 CSR_MHARTID     : mhartid   <= ex_wdata_i;
                 CSR_MSTATUS     : mstatus   <= ex_wdata_i;

@@ -242,12 +242,12 @@ multdiv u_multdiv(
             csr_rd_wdata_o  = 32'h0;
             csr_rd_waddr_o  =  5'h0;
         end else begin
-            csr_we_o        =  1'h1;
+            csr_we_o        = csr_we_i;
             csr_waddr_o     = csr_addr_i;
             csr_wdata_o     = 32'h0;
-            csr_rd_we_o     =  1'h1;
+            csr_rd_we_o     = rd_we_i;
             csr_rd_wdata_o  = csr_rdata_temp_i;
-            csr_rd_waddr_o  =  rd_addr_i;
+            csr_rd_waddr_o  = rd_addr_i;
             unique case(csr_operate_i)
                 CSR_RW  :   begin
                     csr_wdata_o =  rs1_rdata_i;
