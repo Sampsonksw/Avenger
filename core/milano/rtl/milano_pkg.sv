@@ -43,6 +43,8 @@ typedef enum logic [5:0] {
   // Set lower than
   ALU_SLT,
   ALU_SLTU,
+  // AUIPC
+  AUIPC,
 
   ALU_NONE        = 6'h3f
 
@@ -77,5 +79,55 @@ typedef enum logic [3:0] {
 
   JUMP_NONE
 } jump_opt_e;
+
+typedef enum logic [3:0] {
+  // Multiplier/divider
+  MD_OP_MUL,
+  MD_OP_MULH,
+  MD_OP_MULSU,
+  MD_OP_MULU,
+  MD_OP_DIV,
+  MD_OP_DIVU,
+  MD_OP_REM,
+  MD_OP_REMU,
+  MD_OP_NONE
+} md_opt_e;
+
+typedef enum logic [3:0] {
+  // Multiplier/divider
+  CSR_RW,
+  CSR_RS,
+  CSR_RC,
+  CSR_RWI,
+  CSR_RSI,
+  CSR_RCI,
+  CSR_NONE
+} csr_opt_e;
+
+typedef enum logic [11:0] {
+  // Machine information
+  CSR_MHARTID   = 12'hF14,
+
+  // Machine trap setup
+  CSR_MSTATUS   = 12'h300,
+  CSR_MISA      = 12'h301,
+  CSR_MIE       = 12'h304,
+  CSR_MTVEC     = 12'h305,
+  
+  // Machine trap handling
+  CSR_MSCRATCH  = 12'h340,
+  CSR_MEPC      = 12'h341,
+  CSR_MCAUSE    = 12'h342,
+  CSR_MTVAL     = 12'h343,
+  CSR_MIP       = 12'h344,
+
+  // Machine Counter/Timers
+  CSR_MCYCLE    = 12'hB00,
+  CSR_MINSTRET  = 12'hB02,
+  CSR_MCYCLEH   = 12'hB80,
+  CSR_MINSTRETH = 12'hB82
+} csr_num_e;
+
+
 
 endpackage
