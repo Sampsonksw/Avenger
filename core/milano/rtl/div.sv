@@ -25,17 +25,18 @@
 `default_nettype none
 
 module div(    
-    input   logic           clk_i,
-    input   logic           rst_ni,
+    input   logic                   clk_i           ,
+    input   logic                   rst_ni          ,
     
-    input   logic           div_start,
-    input   logic   [31:0]  dividend,
-    input   logic   [31:0]  divisor,
+    input   logic                   div_start       ,
+    input   logic   [31:0]          dividend        ,
+    input   logic   [31:0]          divisor         ,
     
-    output  logic   [31:0]  quotient,
-    output  logic   [31:0]  remainder,
-    output  logic           div_done,
-    output  logic           div_busy
+    output  logic   [31:0]          quotient        ,
+    output  logic   [31:0]          remainder       ,
+    output  logic                   div_done        ,
+    output  logic                   div_busy        ,
+    input   logic                   refresh_pip_i   
 );
 
 
@@ -58,10 +59,10 @@ module div(
     assign  calc2done   =   leftshift_cnt == 6'd31;
     assign  done2idle   =   1'b1;
 
-    assign  div_busy    =   state_c !== IDLE ;
+    assign  div_busy    =   state_c !== IDLE;
 
     always_ff @(posedge clk_i, negedge rst_ni)begin
-        if(!rst_ni)begin
+        if(!rst_ni || refresh_pip_i)begin
             state_c <= IDLE;
         end else begin
             state_c <= state_n;

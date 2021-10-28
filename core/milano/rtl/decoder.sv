@@ -32,6 +32,7 @@ module decoder(
     //output  logic   [11:0]          csr_addr_o,
     // output to ID-EX pipeline register
     output  logic   [31:0]          instr_addr_o        ,
+    output  logic   [31:0]          instr_data_o        ,
     output  logic   [4:0]           rd_addr_o           ,   //destination reg addr
     output  logic                   rd_wr_en_o          ,   //destination reg write enable
     output  logic                   alu_sel_o           ,
@@ -56,7 +57,11 @@ module decoder(
     output  logic                   csr_sel_o           ,
     output  logic   [31:0]          csr_rdata_temp_o    ,
     output  logic   [31:0]          csr_imm_o           ,
-    output  milano_pkg::csr_opt_e   csr_operate_o
+    output  milano_pkg::csr_opt_e   csr_operate_o       ,
+
+    // system exception
+    output  logic                   ecall_flag_o        ,
+    output  logic                   ebreak_flag_o       
 );
     import  milano_pkg::*;
     opcode_e        opcode;
@@ -78,6 +83,7 @@ module decoder(
     
     assign  instr_addr_o    = instr_addr_i;
     assign  instr           = instr_rdata_i;
+    assign  instr_data_o    = instr_rdata_i;
     assign  i_type_imm  = instr[31:20];
     assign  s_type_imm  = {instr[31:25],instr[11:7]};
     assign  b_type_imm  = {instr[30],instr[7],instr[30:25],instr[11:8]};
@@ -129,6 +135,8 @@ module decoder(
             cond_jump_instr_o   =  1'h0;
             jump_imm_o          = 32'h0;
             jump_operate_o      = JUMP_NONE;
+            ecall_flag_o        = 1'b0;
+            ebreak_flag_o       = 1'b0;
         end else begin
             opcode              = opcode_e'(instr[6:0]);
             rs1_addr_o          = instr[19:15];
@@ -154,6 +162,8 @@ module decoder(
             cond_jump_instr_o   =  1'h0;
             jump_imm_o          = 32'h0;
             jump_operate_o      = JUMP_NONE;
+            ecall_flag_o        = 1'b0;
+            ebreak_flag_o       = 1'b0;
             unique case (opcode)
                 OPCODE_OP : begin
                     alu_operand_a_o = rs1_rdata_i;
@@ -309,31 +319,52 @@ module decoder(
                     csr_imm_o   = csr_imm_extend;
                     csr_rdata_temp_o = csr_rdata_i;
                     unique case(instr[14:12])
-                        3'h1:   csr_operate_o = CSR_RW;             //CSRRW
-                        3'h2:   begin if(rs1_addr_o==5'h0)begin     //CSRRS
-                                    csr_operate_o = CSR_NONE;
-                                    csr_wr_en_o = 1'b0;
-                                end else begin
-                                    csr_operate_o = CSR_RS;
+                        3'h1:   csr_operate_o = CSR_RW;                 //CSRRW
+                        3'h2:   begin 
+                                    if(rs1_addr_o==5'h0)begin           //CSRRS
+                                        csr_operate_o = CSR_NONE;
+                                        csr_wr_en_o = 1'b0;
+                                    end else begin
+                                        csr_operate_o = CSR_RS;
+                                    end
                                 end
-                        3'h3:   begin if(rs1_addr_o==5'h0)begin     //CSRRC
-                                    csr_operate_o = CSR_NONE;
-                                    csr_wr_en_o = 1'b0;
-                                end else begin
-                                    csr_operate_o = CSR_RC;
+                        3'h3:   begin 
+                                    if(rs1_addr_o==5'h0)begin           //CSRRC
+                                        csr_operate_o = CSR_NONE;
+                                        csr_wr_en_o = 1'b0;
+                                    end else begin
+                                        csr_operate_o = CSR_RC;
+                                    end
                                 end
-                        3'h5:   csr_operate_o = CSR_RWI;            //CSRRWI
-                        3'h6:   begin if(csr_imm_o == 32'h0)begin   //CSRRSI
-                                    csr_operate_o = CSR_NONE;
-                                    csr_wr_en_o = 1'b0;
-                                end else begin
-                                    csr_operate_o = CSR_RSI;
+                        3'h5:   csr_operate_o = CSR_RWI;                //CSRRWI
+                        3'h6:   begin 
+                                    if(csr_imm_o == 32'h0)begin         //CSRRSI
+                                        csr_operate_o = CSR_NONE;
+                                        csr_wr_en_o = 1'b0;
+                                    end else begin
+                                        csr_operate_o = CSR_RSI;
+                                    end
                                 end
-                        3'h7:   begin if(csr_imm_o == 32'h0)begin   //CSRRCI
-                                    csr_operate_o = CSR_NONE;
-                                    csr_wr_en_o = 1'b0;
-                                end else begin
-                                    csr_operate_o = CSR_RCI;
+                        3'h7:   begin 
+                                    if(csr_imm_o == 32'h0)begin         //CSRRCI
+                                        csr_operate_o = CSR_NONE;
+                                        csr_wr_en_o = 1'b0;
+                                    end else begin
+                                        csr_operate_o = CSR_RCI;
+                                    end
+                                end
+                        3'h0:   begin
+                                    unique case(instr[31:20])
+                                        12'h0:  ecall_flag_o  = 1'b1;
+                                        12'h1:  ebreak_flag_o = 1'b1;
+                                        default: begin
+                                                    ecall_flag_o  = 1'b0;
+                                                    ebreak_flag_o = 1'b0;
+                                                    rd_wr_en_o  = 1'b0;
+                                                    csr_wr_en_o = 1'b0;
+                                                    csr_sel_o   = 1'b0;
+                                                 end
+                                    endcase
                                 end
                         default: ;
                     endcase
@@ -342,6 +373,7 @@ module decoder(
             endcase
         end
     end
+
 endmodule
 
 

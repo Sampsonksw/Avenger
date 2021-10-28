@@ -38,7 +38,8 @@ module multdiv(
     output  logic   [31:0]          md_rd_wdata_o   ,   
     //  
     output  logic                   div_done        ,
-    output  logic                   div_busy
+    output  logic                   div_busy        ,
+    input   logic                   refresh_pip_i   
 
 );
     import milano_pkg::*;
@@ -203,15 +204,16 @@ module multdiv(
     
 
     div u_div(
-        .clk_i      ( clk_i     ),
-        .rst_ni     ( rst_ni    ),
-        .div_start  ( div_start ),
-        .dividend   ( dividend  ),
-        .divisor    ( divisor   ),
-        .quotient   ( quotient  ),
-        .remainder  ( remainder ),
-        .div_done   ( div_done  ),
-        .div_busy   ( div_busy  )
+        .clk_i          ( clk_i         ),
+        .rst_ni         ( rst_ni        ),
+        .div_start      ( div_start     ),
+        .dividend       ( dividend      ),
+        .divisor        ( divisor       ),
+        .quotient       ( quotient      ),
+        .remainder      ( remainder     ),
+        .div_done       ( div_done      ),
+        .div_busy       ( div_busy      ),
+        .refresh_pip_i  ( refresh_pip_i )
 );
 endmodule
 

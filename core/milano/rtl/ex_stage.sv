@@ -16,6 +16,7 @@ module ex_stage(
     input   logic                   rst_ni              ,
     // from ID-EX pipeline register
     input   logic   [31:0]          instr_addr_i        ,
+    input   logic   [31:0]          instr_data_i        ,
     input   logic                   alu_sel_i           ,
     input   logic                   md_sel_i            ,
     input   milano_pkg::alu_opt_e   alu_operate_i       ,
@@ -42,6 +43,9 @@ module ex_stage(
     input   logic                   cond_jump_instr_i   ,
     input   logic   [31:0]          jump_imm_i          ,
     input   milano_pkg::jump_opt_e  jump_operate_i      ,
+
+    input   logic                   ecall_flag_i        ,
+    input   logic                   ebreak_flag_i       ,
     // rd register wirte interface
     output  logic                   rd_we_o             ,
     output  logic   [4:0]           rd_waddr_o          ,
@@ -65,8 +69,15 @@ module ex_stage(
     // to pc fetch reg
     output  logic                   jump_flag_o         ,    
     output  logic   [31:0]          jump_addr_o         ,
-    // stall to ctrl
-    output  logic                   stallreq_o
+    // to ctrl
+    output  logic                   stallreq_o          ,
+    output  logic                   ecall_exce_o        ,
+    output  logic                   ebreak_exce_o       ,
+    output  logic   [31:0]          instr_addr_o        ,
+    output  logic   [31:0]          instr_data_o        , 
+    // from ctrl
+    input   logic                   refresh_pip_i       
+
 );
     
     import milano_pkg::*;
@@ -76,7 +87,8 @@ module ex_stage(
     logic   [31:0]  alu_rd_wdata_o, lsu_rd_wdata_o, md_rd_wdata_o, csr_rd_wdata_o;
     logic           alu_rd_we_o, lsu_rd_we_o, md_rd_we_o, csr_rd_we_o;
     logic   [4:0]   alu_rd_waddr_o, lsu_rd_waddr_o, md_rd_waddr_o, csr_rd_waddr_o;
-
+    assign  instr_addr_o = instr_addr_i;
+    assign  instr_data_o = instr_data_i;
     always_comb begin
         if(alu_sel_i)begin
             rd_wdata_o  = alu_rd_wdata_o;
@@ -163,7 +175,8 @@ multdiv u_multdiv(
     .md_rd_waddr_o  ( md_rd_waddr_o     ),
     .md_rd_wdata_o  ( md_rd_wdata_o     ),
     .div_done       ( div_done          ),
-    .div_busy       ( div_busy          )
+    .div_busy       ( div_busy          ),
+    .refresh_pip_i  ( refresh_pip_i     )
 
     );
 
@@ -282,8 +295,15 @@ multdiv u_multdiv(
 // stall
     logic           stallreq_from_multdiv;
     assign  stallreq_from_multdiv = div_busy ||div_start;
-    assign  stallreq_o = stallreq_from_multdiv;
+    assign  stallreq_o = stallreq_from_multdiv && ~refresh_pip_i;
+
+// exce
+    assign  ebreak_exce_o = ebreak_flag_i;
+    assign  ecall_exce_o = ecall_flag_i;
+
+
 endmodule
+
 
 `default_nettype wire
 

@@ -14,9 +14,13 @@
 module id_ex_reg(
     input   logic                   clk_i               ,
     input   logic                   rst_ni              ,
+    //stall from ctrl
     input   logic                   stall_from_ctrl_i   ,
+    //refresh from ctrl
+    input   logic                   refresh_pip_i       ,
     //from decoder
     input   logic   [31:0]          instr_addr_i        ,
+    input   logic   [31:0]          instr_data_i        ,
     input   logic   [4:0]           rd_addr_i           ,
     input   logic                   rd_wr_en_i          ,
     input   logic                   alu_sel_i           ,
@@ -41,9 +45,13 @@ module id_ex_reg(
     input   logic   [31:0]          csr_rdata_temp_i    ,
     input   logic   [31:0]          csr_imm_i           ,
     input   milano_pkg::csr_opt_e   csr_operate_i       ,
+
+    input   logic                   ecall_flag_i        ,
+    input   logic                   ebreak_flag_i       ,
     
     //to EX
     output  logic   [31:0]          instr_addr_ex_o     ,
+    output  logic   [31:0]          instr_data_ex_o     ,
     output  logic   [4:0]           rd_addr_ex_o        ,
     output  logic                   rd_wr_en_ex_o       ,
     output  logic                   alu_sel_ex_o        ,
@@ -67,13 +75,17 @@ module id_ex_reg(
     output  logic                   csr_sel_ex_o        ,
     output  logic   [31:0]          csr_rdata_temp_ex_o ,
     output  logic   [31:0]          csr_imm_ex_o        ,
-    output  milano_pkg::csr_opt_e   csr_operate_ex_o    
+    output  milano_pkg::csr_opt_e   csr_operate_ex_o    ,
+
+    output  logic                   ecall_flag_ex_o     ,
+    output  logic                   ebreak_flag_ex_o
 
 );
     import milano_pkg::*;
     always_ff @(posedge clk_i,negedge rst_ni)begin
         if (!rst_ni)begin
             instr_addr_ex_o         <= 32'h0;
+            instr_data_ex_o         <= 32'h0;
             rd_addr_ex_o            <= 5'h0;
             rd_wr_en_ex_o           <= 1'h0;
             alu_sel_ex_o            <= 1'h0;
@@ -98,8 +110,40 @@ module id_ex_reg(
             csr_rdata_temp_ex_o     <= 32'h0;
             csr_imm_ex_o            <= 32'h0;
             csr_operate_ex_o        <= CSR_NONE;
+            ecall_flag_ex_o         <= 1'h0;
+            ebreak_flag_ex_o        <= 1'h0;
+
+        end else if (refresh_pip_i)begin
+            instr_data_ex_o         <= 32'h0;
+            rd_addr_ex_o            <= 5'h0;
+            rd_wr_en_ex_o           <= 1'h0;
+            alu_sel_ex_o            <= 1'h0;
+            md_sel_ex_o             <= 1'h0;
+            rs1_rdata_ex_o          <= 32'h0;
+            rs2_rdata_ex_o          <= 32'h0;
+            alu_operand_a_ex_o      <= 32'h0;
+            alu_operand_b_ex_o      <= 32'h0;
+            alu_operate_ex_o        <= ALU_NONE;
+            md_operand_a_ex_o       <= 32'h0;
+            md_operand_b_ex_o       <= 32'h0;
+            md_operate_ex_o         <= MD_OP_NONE;
+            lsu_we_ex_o             <= 1'b0; 
+            lsu_req_ex_o            <= 1'b0; 
+            lsu_operate_ex_o        <= LSU_NONE;
+            cond_jump_instr_ex_o    <= 1'h0;
+            jump_imm_ex_o           <= 32'h0;
+            jump_operate_ex_o       <= JUMP_NONE;
+            csr_wr_en_ex_o          <= 1'h0;
+            csr_addr_ex_o           <= 12'h0;
+            csr_sel_ex_o            <= 1'h0;
+            csr_rdata_temp_ex_o     <= 32'h0;
+            csr_imm_ex_o            <= 32'h0;
+            csr_operate_ex_o        <= CSR_NONE;
+            ecall_flag_ex_o         <= 1'h0;
+            ebreak_flag_ex_o        <= 1'h0;
         end else if(stall_from_ctrl_i)begin
-            instr_addr_ex_o         <= instr_addr_ex_o;         
+            instr_addr_ex_o         <= instr_addr_ex_o;
+            instr_data_ex_o         <= instr_data_ex_o;
             rd_addr_ex_o            <= rd_addr_ex_o;            
             rd_wr_en_ex_o           <= rd_wr_en_ex_o;           
             alu_sel_ex_o            <= alu_sel_ex_o;  
@@ -124,8 +168,11 @@ module id_ex_reg(
             csr_rdata_temp_ex_o     <= csr_rdata_temp_ex_o;
             csr_imm_ex_o            <= csr_imm_ex_o;
             csr_operate_ex_o        <= csr_operate_ex_o;
+            ecall_flag_ex_o         <= ecall_flag_ex_o;
+            ebreak_flag_ex_o        <= ebreak_flag_ex_o;
         end else begin
             instr_addr_ex_o         <= instr_addr_i;
+            instr_data_ex_o         <= instr_data_i;
             rd_addr_ex_o            <= rd_addr_i;
             rd_wr_en_ex_o           <= rd_wr_en_i;
             alu_sel_ex_o            <= alu_sel_i;
@@ -150,6 +197,8 @@ module id_ex_reg(
             csr_rdata_temp_ex_o     <= csr_rdata_temp_i;
             csr_imm_ex_o            <= csr_imm_i;
             csr_operate_ex_o        <= csr_operate_i;
+            ecall_flag_ex_o         <= ecall_flag_i;
+            ebreak_flag_ex_o        <= ebreak_flag_i;
         end
     end
 

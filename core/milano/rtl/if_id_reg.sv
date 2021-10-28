@@ -16,6 +16,8 @@ module if_id_reg(
 	input   logic               rst_ni,
     //stall from ctrl
     input   logic               stall_from_ctrl_i,
+    //refresh pipeline from ctrl
+    input   logic               refresh_pip_i,
     //input from instr ram
 	input   logic   [31:0]      instr_rdata_i,
     //input from prefetch_reg
@@ -26,7 +28,7 @@ module if_id_reg(
 );
 
 	always @(posedge clk_i or negedge rst_ni)begin
-	    if(!rst_ni)begin
+	    if(!rst_ni || refresh_pip_i)begin
             instr_rdata_id_o <= 32'h0;
             instr_addr_id_o  <= 32'h0;
         end else if (stall_from_ctrl_i)begin

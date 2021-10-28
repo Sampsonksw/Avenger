@@ -129,5 +129,19 @@ typedef enum logic [11:0] {
 } csr_num_e;
 
 
+// STATUS machine
+typedef enum logic [3:0] {
+    IDLE,
+    EXCE,
+    HANDLE,
+    QUIT
+} exce_hand_state_e;
 
+typedef enum logic [3:0] {
+    WR_IDLE,
+    WR_MCAUSE,
+    WR_MEPC,
+    WR_MTVAL,
+    WR_MSTATUS
+} csr_ctrl_state_e;
 endpackage

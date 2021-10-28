@@ -25,6 +25,7 @@ logic   [31:0]      data_rdata_i;
 logic               data_rvalid_o;
 logic   [31:0]      data_wdata_o;
 logic               data_gnt_i;
+logic               timer_irq_i;
 milano dut(
         .clk_i          ( clk_i         ),
         .rst_ni         ( rst_ni        ),
@@ -43,8 +44,10 @@ milano dut(
         .data_we_o      ( data_we_o     ) ,
         .data_be_o      ( data_be_o     ),
         .data_wdata_o   ( data_wdata_o  ),
-        .data_rdata_i   ( data_rdata_i  )
-            );
+        .data_rdata_i   ( data_rdata_i  ),
+        //timer interrupt
+        .timer_irq_i    ( timer_irq_i   )        
+);
 
 instr_rom u_instr_rom(
     .addr   ( instr_addr_o  ),
@@ -69,9 +72,11 @@ initial begin
     clk_i = 'b0;
     rst_ni = 'b0;
     boot_addr_i= 'b0;
+    timer_irq_i= 'b0;
    // instr_rdata_i ='b0;
     //instr_addr_o <='b0;
     #100 rst_ni = 1'b1;
+    //testbench.dut.u_csr_reg.mie[31:0]=32'h80;
     // instr_rdata_i = 32'b0000000_00001_00000_000_00010_0110011;
     //                     funct7   rs2    rs1  fun3   rd   opcode
     // #30;
@@ -133,6 +138,10 @@ initial begin
     //
     //
     //
+    #300 timer_irq_i= 'b1;
+    #50 timer_irq_i= 'b0;
+    //wait (testbench.dut.u_ctrl.exce_hand_state_c[3:0]==4'b0010);
+
     #100000 $finish;
 
 end
