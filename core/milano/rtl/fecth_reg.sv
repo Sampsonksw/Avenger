@@ -43,12 +43,12 @@ module prefetch_reg(
             instr_addr_o <= boot_addr_i;
         end else if(ctrl_jump_flag_i)begin
             instr_addr_o <= ctrl_jump_addr_i;
+        end else if(jump_flag_i)begin
+            instr_addr_o <= jump_addr_i;
         end else if(refresh_pip_i)begin
             instr_addr_o <= instr_addr_o;
         end else if(stall_from_ctrl_i)begin
             instr_addr_o <= instr_addr_o;
-        end else if(jump_flag_i)begin
-            instr_addr_o <= jump_addr_i;
         end else begin
             instr_addr_o <= instr_addr_o + 4;
         end

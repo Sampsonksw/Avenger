@@ -272,6 +272,7 @@ ctrl u_ctrl(
     .instr_data_i       ( instr_data_id2ex      ),
     .ecall_exce_i       ( ecall_exce_o          ),
     .ebreak_exce_i      ( ebreak_exce_o         ),
+    .ex_jump_flag_i     ( jump_flag_o           ),
     // from csr_reg
     .csr_mstatus        ( mstatus               ),
     .csr_mepc           ( mepc                  ),

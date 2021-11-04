@@ -154,13 +154,27 @@ module multdiv(
                                     md_rd_we_o    =  1'h0;
                                 end
                             end
+                         
+                MD_OP_REM:  begin
+                                if(div_done)begin
+                                    md_rd_we_o = rd_we_i;
+                                    md_rd_waddr_o = rd_addr_i;
+                                    md_rd_wdata_o = md_operand_a_i[31] ? ~remainder+1'b1 : remainder;
+                                end else begin
+                                    md_rd_wdata_o = 32'h0;
+                                    md_rd_waddr_o = 32'h0;
+                                    md_rd_we_o    =  1'h0;
+                                end
+                            end
+                               
+                /*           
                 MD_OP_REM:  begin
                     unique case (md_operand_a_i[31]^md_operand_b_i[31])
                         1'b0    :   begin 
                                         if(div_done)begin
                                             md_rd_we_o = rd_we_i;
                                             md_rd_waddr_o = rd_addr_i;
-                                            md_rd_wdata_o = remainder;
+                                            md_rd_wdata_o = md_operand_a_i[31] ? ~remainder+1'b1 : remainder;
                                         end else begin
                                             md_rd_wdata_o = 32'h0;
                                             md_rd_waddr_o = 32'h0;
@@ -169,9 +183,10 @@ module multdiv(
                                     end
                         1'b1    :   begin
                                         if(div_done)begin
+
                                             md_rd_we_o = rd_we_i;
                                             md_rd_waddr_o = rd_addr_i;
-                                            md_rd_wdata_o = ~remainder+1'b1;
+                                            md_rd_wdata_o = md_operand_a_i[31] ? ~remainder+1'b1 : remainder;
                                         end else begin
                                             md_rd_wdata_o = 32'h0;
                                             md_rd_waddr_o = 32'h0;
@@ -181,6 +196,7 @@ module multdiv(
                         default: ;
                     endcase
                 end
+                */
                 MD_OP_REMU: begin
                                 if(div_done)begin
                                     md_rd_we_o  = rd_we_i;

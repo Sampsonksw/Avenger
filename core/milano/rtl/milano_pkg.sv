@@ -16,7 +16,7 @@ package milano_pkg;
 typedef enum logic [6:0] {
   OPCODE_DEFAULT  = 7'h00,
   OPCODE_LOAD     = 7'h03,//0000011, load  , I-type
-  OPCODE_MISC_MEM = 7'h0f,//0001111
+  OPCODE_MISC_MEM = 7'h0f,//0001111, FENCE
   OPCODE_OP_IMM   = 7'h13,//0010011, imm opt, I-type
   OPCODE_AUIPC    = 7'h17,//0010111, Add Upper Imm to PC, U-type
   OPCODE_STORE    = 7'h23,//0100011, store opt , S-type

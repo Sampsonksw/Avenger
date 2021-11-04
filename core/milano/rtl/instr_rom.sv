@@ -18,12 +18,12 @@ module instr_rom(
 
 );
     
-    reg [31:0] mem[31:0];
-    
+    reg [31:0] mem[2047:0];
+/*    
     initial begin
         $readmemh("inst_rom.data", mem );
     end
-
+*/
     always_comb begin
         if(en == 1'b0)begin
             instr = 'h0;

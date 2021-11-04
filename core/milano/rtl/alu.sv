@@ -37,7 +37,7 @@ module alu(
     logic [31:0] slt_op_a_op_b;
     logic [31:0] sltu_op_a_op_b;
     logic [31:0] mask_sr_shift; 
-    assign mask_sr_shift= (32'hffff) >> operand_b_i;
+    assign mask_sr_shift= (32'hffffffff) >> operand_b_i[4:0];
 
     assign add_op_a_op_b = operand_a_i + operand_b_i;
     assign sub_op_a_op_b = operand_a_i - operand_b_i;

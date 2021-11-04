@@ -26,27 +26,27 @@ module data_ram(
 );
     // signals : logic/wire/reg
 
-    reg     [31:0]  mem[31:0];
+    reg     [31:0]  mem[2047:0];
 
     always_comb begin
         if(ce_i==1'b0)begin
             rdata_o = 32'h0;
         end else begin
             rdata_o = mem[addr_i[31:2]];
+            data_rvalid_o = 1'b1;
         end
     end
     
     always_ff @(posedge clk_i, negedge rst_ni)begin
         if(!rst_ni)begin
             wrtie_sucess <= 1'b0;
-            $readmemh("./ram.data",mem);
+            $readmemh("./test.vmem",mem);
         end else begin
             if(wr_en_i==1'b1 && ce_i==1'b1)begin
                 wrtie_sucess <= 1'b1;
                 if(sel_i==4'b0000)begin
                     mem[addr_i[31:2]] <= mem[addr_i[31:2]];
                 end else begin
-
                     mem[addr_i[31:2]] <=wdata_i;
                 end
                 /*

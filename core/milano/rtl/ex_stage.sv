@@ -188,7 +188,7 @@ multdiv u_multdiv(
     logic   beq_jump_enable, bne_jump_enable, blt_jump_enable, bge_jump_enable, bltu_jump_enable, bgeu_jump_enable;
 
     assign  rs1_equal_rs2   =   rs1_rdata_i == rs2_rdata_i;
-    assign  rs1_less_rs2    =   rs1_rdata_i < rs2_rdata_i;
+    assign  rs1_less_rs2    =   (rs1_rdata_i[31] ^ rs2_rdata_i[31]) ? ( rs1_rdata_i[31] ? 1'b1 : 1'b0): rs1_rdata_i < rs2_rdata_i;
     assign  rs1_less_rs2_unsigned = $unsigned(rs1_rdata_i) < $unsigned(rs2_rdata_i);
 
     assign  beq_jump_enable =   rs1_equal_rs2  ? 1'b1 : 1'b0;

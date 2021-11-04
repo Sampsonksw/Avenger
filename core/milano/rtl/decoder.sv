@@ -179,7 +179,7 @@ module decoder(
                         {7'h00, 3'h7}: begin alu_operate_o = ALU_AND;   alu_sel_o = 1'b1;   end
                         {7'h00, 3'h1}: begin alu_operate_o = ALU_SLL;   alu_sel_o = 1'b1;   end
                         {7'h00, 3'h5}: begin alu_operate_o = ALU_SRL;   alu_sel_o = 1'b1;   end
-                        {7'h20, 3'h5}: begin alu_operate_o = ALU_SRA;   alu_sel_o = 1'b1;   end
+                        {7'h20, 3'h5}: begin alu_operate_o = ALU_SRA;   alu_sel_o = 1'b1;  alu_operand_b_o = rs2_rdata_i[4:0];   end
                         {7'h00, 3'h2}: begin alu_operate_o = ALU_SLT;   alu_sel_o = 1'b1;   end
                         {7'h00, 3'h3}: begin alu_operate_o = ALU_SLTU;  alu_sel_o = 1'b1;   end
 
@@ -214,11 +214,16 @@ module decoder(
                         3'b100 : alu_operate_o = ALU_XOR;           //XORI
                         3'b110 : alu_operate_o = ALU_OR;            //ORI
                         3'b111 : alu_operate_o = ALU_AND;           //ANDI
-                        3'b001 : if (instr[31:25]==7'h00) alu_operate_o = ALU_SLL;        //SLLI
+                        3'b001 : if (instr[31:25]==7'h00) begin 
+                                    alu_operate_o = ALU_SLL;        //SLLI
+                                    alu_operand_b_o = {{27{instr[24]}},instr[24:20]};
+                                 end
                         3'b101 : if (instr[31:25]==7'h00) begin 
                                     alu_operate_o = ALU_SRL;        //SRLI
+                                    alu_operand_b_o = {{27{instr[24]}},instr[24:20]};
                                  end else if (instr[31:25]==7'h20) begin 
                                     alu_operate_o = ALU_SRA;        //SRAI
+                                    alu_operand_b_o = {{27{instr[24]}},instr[24:20]};
                                  end
                         3'b010 : alu_operate_o = ALU_SLT;           //SLTI
                         3'b011 : alu_operate_o = ALU_SLTU;          //SLTUI
@@ -369,6 +374,17 @@ module decoder(
                         default: ;
                     endcase
                 end
+
+                OPCODE_MISC_MEM:   begin
+                    if(instr[14:12] == 3'b001)begin
+                        jump_operate_o = JUMP_JAL;
+                        jump_imm_o  = 32'h4;
+                    end else begin
+                        jump_operate_o = JUMP_NONE;
+                        jump_imm_o = 32'h0;
+                    end
+                end
+
                 default: ;
             endcase
         end

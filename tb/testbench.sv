@@ -9,7 +9,7 @@
 ***************************************/
 module testbench;
 
-
+string casename;
 logic               clk_i;
 logic               rst_ni;
 logic   [31:0]      boot_addr_i;
@@ -69,6 +69,7 @@ data_ram u_data_ram(
 );
 
 initial begin
+    $value$plusargs("casename=%s", casename);
     clk_i = 'b0;
     rst_ni = 'b0;
     boot_addr_i= 'b0;
@@ -138,11 +139,45 @@ initial begin
     //
     //
     //
-    #300 timer_irq_i= 'b1;
-    #50 timer_irq_i= 'b0;
+    //#300 timer_irq_i= 'b1;
+    //#50 timer_irq_i= 'b0;
     //wait (testbench.dut.u_ctrl.exce_hand_state_c[3:0]==4'b0010);
+    if(casename == 'b0)begin
 
-    #100000 $finish;
+    end else begin
+        wait(testbench.dut.u_id_stage.u_regs_file.regs[26][31:0]==32'b1);
+        $display("==========================================================================");
+        #20 $display("test done!!");
+        $display("==========================================================================");
+
+        if(testbench.dut.u_id_stage.u_regs_file.regs[27][31:0] && testbench.dut.u_id_stage.u_regs_file.regs[26][31:0])begin
+            $display("riscvtest_pass");
+            $display("==========================================================================");
+            $display("         ______          ___             ________        ________         ");
+            $display("        / ____ \\ \\      / __ \\           / ______/       / ______///       ");
+            $display("       / /   / / /     / /  \\ \\         / //            / //               ");
+            $display("      / /___/ / /     / / /\\ \\ \\         \\ \\             \\ \\              ");
+            $display("     / ______/ /     / / /  \\ \\ \\          \\ \\ __         \\ \\ __         "); 
+            $display("    / /             / /  ````  \\ \\            / //            / //       ");
+            $display("   / /             / /  ``````  \\ \\      ____ / //       ____ / //        ");
+            $display("  /_/             / /            \\ \\    /______ //      /______ //         ");
+            $display("==========================================================================");
+
+        end else begin
+            $display("riscvtest_fail");
+            $display("==========================================================================");
+            $display("         ________         ___                 __________        __           ");
+            $display("        / ______//         / __ \\           / ________//      / //          ");
+            $display("       / /              / /  \\ \\              / //          / //           ");
+            $display("      / /___           / / /\\ \\ \\           / //          / //            ");
+            $display("     / _____//        / / /  \\ \\ \\         / //          / //             "); 
+            $display("    / /              / /  ````  \\ \\        / //          / //              ");
+            $display("   / /              / /  ``````  \\ \\    __/ //____      / //_______        ");
+            $display("  /_/             // /            \\ \\  /________ //     /____ _ ___//       ");
+            $display("==========================================================================");
+        end
+    end
+    #100 $finish;
 
 end
 
@@ -154,14 +189,27 @@ end
 
 initial begin
     $readmemh("./regs.data",testbench.dut.u_id_stage.u_regs_file.regs);
-    //$readmemh("./inst_rom.data",testbench.u_data_ram.mem);
+    //$readmemh("./../core/milano/tests/base-isa-old/generated/rv32ui-p-add.vmem",testbench.u_instr_rom.mem);
+    //$readmemh("./../core/milano/tests/base-isa-old/generated/rv32ui-p-addi.vmem",testbench.u_instr_rom.mem);
+    //$readmemh("./../core/milano/tests/base-isa-old/generated/rv32ui-p-and.vmem",testbench.u_instr_rom.mem);
+    //$readmemh("./../core/milano/tests/base-isa-old/generated/rv32ui-p-and.vmem",testbench.u_instr_rom.mem);
+    $readmemh("./test.vmem",testbench.u_instr_rom.mem);
 end
 
-initial begin
-    $fsdbDumpfile("testbench");
+initial begin:dump_wave
+    
+    if($value$plusargs("casename=%s", casename)) begin
+        $fsdbDumpfile({casename, ".fsdb"});
+        $display("hello");
+    end else begin
+        $fsdbDumpfile("testbench.fsdb");
+    end
     //$fsdbDumpvars("+parameter,+struct");
     $fsdbDumpvars("+all");
     $fsdbDumpvars(0, testbench);
+    $display("casename = %x",casename);
 end
+
+
 endmodule
 

@@ -24,6 +24,7 @@ module ctrl(
     input   logic   [31:0]      instr_data_i        ,
     input   logic               ecall_exce_i        ,
     input   logic               ebreak_exce_i       ,
+    input   logic               ex_jump_flag_i      ,
     // from csr_reg
     input   logic   [31:0]      csr_mstatus         ,
     input   logic   [31:0]      csr_mepc            ,
@@ -80,7 +81,7 @@ module ctrl(
     assign  local_int = {software_int,timer_int};
     assign  interrupt = ((|local_int) || external_int) & mstatus_mie;
     assign  exception = {ecall_exce_i, ebreak_exce_i};
-    assign  refresh_pip_o = idle2exce || exce_hand_state_c== EXCE || exec2idle;
+    assign  refresh_pip_o = idle2exce || exce_hand_state_c== EXCE || exec2idle || ex_jump_flag_i;
 
 
 
